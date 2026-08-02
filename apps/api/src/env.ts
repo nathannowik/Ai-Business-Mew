@@ -20,7 +20,8 @@ function optional(name: string, fallback = ""): string {
 }
 
 export const env = {
-  port: Number(process.env.API_PORT ?? 4000),
+  // Hosts (Render/Railway/etc.) inject PORT; fall back to API_PORT then 4000.
+  port: Number(process.env.PORT ?? process.env.API_PORT ?? 4000),
   publicApiUrl: optional("PUBLIC_API_URL", "http://localhost:4000"),
   databaseUrl: required("DATABASE_URL"),
 

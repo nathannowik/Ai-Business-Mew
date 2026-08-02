@@ -44,6 +44,13 @@ packages/
 docs/         Architecture and roadmap
 ```
 
+## Deploying / trying it live
+
+To run it locally or deploy it for a shareable URL, see **[DEPLOY.md](DEPLOY.md)**.
+A one-click [Render Blueprint](render.yaml) provisions the database, API, and web
+app together; the API also ships a standard [Dockerfile](apps/api/Dockerfile) for
+any container host.
+
 ## Quick start
 
 Prerequisites: Node 20+, Docker (for Postgres).
