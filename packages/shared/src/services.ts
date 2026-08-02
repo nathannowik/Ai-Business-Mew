@@ -70,7 +70,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     key: "marketing_assistant",
     name: "AI Marketing Assistant",
     description: "Creates social posts, emails, ads, blogs, and promotions.",
-    status: "planned",
+    status: "live",
     integrations: ["social", "email"],
   },
   {
@@ -78,7 +78,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     name: "AI Review Management",
     description:
       "Requests reviews, responds to reviews, and monitors customer feedback.",
-    status: "planned",
+    status: "live",
     integrations: ["google_business", "email", "twilio"],
   },
   {
@@ -86,7 +86,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     name: "AI Business Reporting",
     description:
       "Summarizes sales, leads, customer data, and business performance.",
-    status: "planned",
+    status: "live",
     integrations: ["crm", "analytics"],
   },
   {
@@ -94,7 +94,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     name: "AI Document Automation",
     description:
       "Creates quotes, proposals, contracts, invoices, and reports automatically.",
-    status: "planned",
+    status: "live",
     integrations: ["storage"],
   },
 ];

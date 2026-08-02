@@ -26,10 +26,10 @@ on the dashboard as "coming soon".
 | 4 | AI Employee Knowledge Base | 🔜 planned |
 | 5 | AI Appointment Scheduling | 🟡 beta (booking works via receptionist) |
 | 6 | AI Sales Assistant | 🔜 planned |
-| 7 | AI Marketing Assistant | 🔜 planned |
-| 8 | AI Review Management | 🔜 planned |
-| 9 | AI Business Reporting | 🔜 planned |
-| 10 | AI Document Automation | 🔜 planned |
+| 7 | AI Marketing Assistant | ✅ live |
+| 8 | AI Review Management | ✅ live |
+| 9 | AI Business Reporting | ✅ live |
+| 10 | AI Document Automation | ✅ live |
 
 ## Monorepo layout
 

@@ -24,6 +24,9 @@ model Organization {
   leads          Lead[]
   chatSessions   ChatSession[]
   subscription   Subscription?
+  contentPieces  ContentPiece[]
+  documents      Document[]
+  reviews        Review[]
 }
 
 model User {
@@ -160,6 +163,51 @@ model Subscription {
   currentPeriodEnd     DateTime?
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
+}
+
+/// Marketing Assistant: a generated content piece (post/email/ad/blog).
+model ContentPiece {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contentType    String
+  topic          String
+  tone           String       @default("professional")
+  title          String
+  body           String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+/// Document Automation: a generated quote/proposal/invoice/contract.
+model Document {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  docType        String
+  title          String
+  customerName   String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+/// Review Management: a customer review + optional AI-drafted response.
+model Review {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author         String
+  rating         Int
+  text           String
+  source         String       @default("manual")
+  status         String       @default("new")
+  draftResponse  String?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
 }
 
 /// A customer-service chat conversation from the public website widget.

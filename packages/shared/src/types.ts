@@ -114,6 +114,52 @@ export interface ChatSession {
   updatedAt: string;
 }
 
+// --- Business Reporting ---
+export interface ReportMetrics {
+  rangeDays: number;
+  calls: { total: number; completed: number; transferred: number; missed: number };
+  leads: { total: number; qualified: number; booked: number; lost: number };
+  appointments: { total: number; upcoming: number };
+  chats: { total: number };
+  conversionRate: number; // booked leads / total leads
+}
+
+// --- Marketing Assistant ---
+export type ContentType = "social" | "email" | "ad" | "blog";
+export interface ContentPiece {
+  id: string;
+  contentType: ContentType;
+  topic: string;
+  tone: string;
+  title: string;
+  body: string;
+  createdAt: string;
+}
+
+// --- Document Automation ---
+export type DocType = "quote" | "proposal" | "invoice" | "contract";
+export interface GeneratedDocument {
+  id: string;
+  docType: DocType;
+  title: string;
+  customerName: string;
+  content: string;
+  createdAt: string;
+}
+
+// --- Review Management ---
+export type ReviewStatus = "new" | "responded";
+export interface Review {
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  source: string;
+  status: ReviewStatus;
+  draftResponse: string | null;
+  createdAt: string;
+}
+
 /** Agency console: a client organization plus rollup stats. */
 export interface OrgSummary {
   id: string;

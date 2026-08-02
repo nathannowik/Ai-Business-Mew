@@ -28,17 +28,22 @@ These need no new telephony and ship fast:
 - [ ] **AI Review Management** — request reviews after jobs, monitor + draft
       responses (Google Business Profile API)
 
+## Phase 2 — Reviews (done)
+- [x] **AI Review Management** — request reviews (SMS/email) + AI-drafted
+      responses; live Google Business monitoring still to wire up
+
 ## Phase 3 — Revenue & content
 - [ ] **AI Sales Assistant** — ingest call recordings, transcribe, coach,
       generate follow-ups, track opportunities (CRM integration)
-- [ ] **AI Marketing Assistant** — generate posts/emails/ads/blogs, schedule
-      to social channels
-- [ ] **AI Document Automation** — quotes, proposals, contracts, invoices from
-      templates + business data (PDF generation, storage)
+- [x] **AI Marketing Assistant** — generate posts/emails/ads/blogs (grounded in
+      the knowledge base); social scheduling still to add
+- [x] **AI Document Automation** — quotes, proposals, contracts, invoices from
+      business data, with PDF download (pdfkit)
 
 ## Phase 4 — Insight
-- [ ] **AI Business Reporting** — scheduled summaries across all the data the
-      other modules now produce (calls, leads, appointments, reviews, sales)
+- [x] **AI Business Reporting** — live metrics rollup (calls, leads,
+      appointments, chats, conversion) + on-demand AI summary; scheduled/emailed
+      reports still to add
 
 ## Cross-cutting (do alongside)
 - [x] Billing & subscriptions (Stripe) with plan tiers + entitlement gating

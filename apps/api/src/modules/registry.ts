@@ -6,6 +6,10 @@ import { receptionistRoutes } from "./receptionist/routes.js";
 import { registerTwilioWebhooks } from "./receptionist/twilio.js";
 import { leadFollowUpRoutes } from "./lead_follow_up/routes.js";
 import { customerServiceRoutes } from "./customer_service/routes.js";
+import { businessReportingRoutes } from "./business_reporting/routes.js";
+import { marketingAssistantRoutes } from "./marketing_assistant/routes.js";
+import { documentAutomationRoutes } from "./document_automation/routes.js";
+import { reviewManagementRoutes } from "./review_management/routes.js";
 import { integrationRoutes } from "../integrations/routes.js";
 import { isEntitled } from "../billing/service.js";
 
@@ -20,7 +24,10 @@ export async function registerModules(app: FastifyInstance): Promise<void> {
   await registerTwilioWebhooks(app);
   await leadFollowUpRoutes(app);
   await customerServiceRoutes(app);
-  // await reviewManagementRoutes(app);   // next up
+  await businessReportingRoutes(app);
+  await marketingAssistantRoutes(app);
+  await documentAutomationRoutes(app);
+  await reviewManagementRoutes(app);
 
   // Catalog + per-org enablement state, used by the dashboard to render tiles.
   app.get("/services", { preHandler: authenticate }, async (request) => {

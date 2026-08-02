@@ -12,6 +12,10 @@ const SERVICE_LINKS: Record<string, string> = {
   receptionist: "/dashboard/receptionist",
   lead_follow_up: "/dashboard/leads",
   customer_service: "/dashboard/customer-service",
+  marketing_assistant: "/dashboard/marketing",
+  document_automation: "/dashboard/documents",
+  review_management: "/dashboard/reviews",
+  business_reporting: "/dashboard/reporting",
 };
 
 const STATUS_STYLES: Record<string, string> = {

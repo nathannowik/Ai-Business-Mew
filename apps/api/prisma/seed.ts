@@ -97,6 +97,22 @@ async function main() {
           },
         ],
       },
+      reviews: {
+        create: [
+          {
+            author: "Maria G.",
+            rating: 5,
+            text: "Fast, friendly, and fixed our leak the same day. Highly recommend!",
+            source: "google",
+          },
+          {
+            author: "Tom R.",
+            rating: 2,
+            text: "Technician was late and I had to call twice to confirm. Work was fine but communication needs improvement.",
+            source: "google",
+          },
+        ],
+      },
     },
   });
 
