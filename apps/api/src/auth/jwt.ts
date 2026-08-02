@@ -5,6 +5,7 @@ export interface TokenPayload {
   userId: string;
   organizationId: string;
   role: string;
+  isPlatformAdmin?: boolean;
 }
 
 export function signToken(payload: TokenPayload): string {

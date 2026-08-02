@@ -4,6 +4,7 @@ import formbody from "@fastify/formbody";
 import { env } from "./env.js";
 import { authRoutes } from "./auth/routes.js";
 import { meRoutes } from "./routes/me.js";
+import { adminRoutes } from "./routes/admin.js";
 import { appointmentRoutes } from "./routes/appointments.js";
 import { knowledgeRoutes } from "./routes/knowledge.js";
 import { registerModules } from "./modules/registry.js";
@@ -23,6 +24,7 @@ async function main(): Promise<void> {
 
   await app.register(authRoutes);
   await app.register(meRoutes);
+  await app.register(adminRoutes);
   await app.register(appointmentRoutes);
   await app.register(knowledgeRoutes);
   await app.register(registerModules);

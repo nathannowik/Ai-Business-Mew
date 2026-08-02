@@ -6,6 +6,8 @@ export interface AuthUser {
   name: string;
   role: "owner" | "admin" | "member";
   organizationId: string;
+  /** Platform operators (you/your agency) who can manage all client orgs. */
+  isPlatformAdmin?: boolean;
 }
 
 export interface AuthResponse {
@@ -89,6 +91,40 @@ export interface LeadFollowUpConfig {
   /** Preferred outreach channel when both phone and email are available. */
   preferredChannel: LeadChannel;
   enabled: boolean;
+}
+
+export interface CustomerServiceConfig {
+  businessName: string;
+  greeting: string;
+  /** Guidance appended to the support agent's system prompt. */
+  instructions: string;
+  enabled: boolean;
+}
+
+export interface ChatTurn {
+  role: "user" | "assistant";
+  text: string;
+  at: string;
+}
+
+export interface ChatSession {
+  id: string;
+  transcript: ChatTurn[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Agency console: a client organization plus rollup stats. */
+export interface OrgSummary {
+  id: string;
+  name: string;
+  createdAt: string;
+  stats: {
+    users: number;
+    leads: number;
+    calls: number;
+    appointments: number;
+  };
 }
 
 export interface ReceptionistConfig {

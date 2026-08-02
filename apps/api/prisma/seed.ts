@@ -21,7 +21,15 @@ async function main() {
     data: {
       name: "Sunrise Plumbing Co.",
       users: {
-        create: { email, name: "Demo Owner", passwordHash, role: "owner" },
+        // Demo account doubles as a platform admin so you can see the Agency
+        // console. In production, platform admins are your own staff accounts.
+        create: {
+          email,
+          name: "Demo Owner",
+          passwordHash,
+          role: "owner",
+          isPlatformAdmin: true,
+        },
       },
       serviceConfigs: {
         create: [
@@ -52,6 +60,18 @@ async function main() {
               enabled: true,
             },
           },
+          {
+            serviceKey: "customer_service",
+            enabled: true,
+            config: {
+              businessName: "Sunrise Plumbing Co.",
+              greeting:
+                "Hi! I'm Sunrise Plumbing's assistant. Ask me about our services, pricing, or service area.",
+              instructions:
+                "Be friendly and concise. For scheduling, encourage them to call or leave their number.",
+              enabled: true,
+            },
+          },
         ],
       },
       knowledgeDocs: {
@@ -71,7 +91,23 @@ async function main() {
     },
   });
 
+  // A second client org so the Agency console isn't empty.
+  await prisma.organization.create({
+    data: {
+      name: "Bright Smile Dental",
+      users: {
+        create: {
+          email: "owner@brightsmile.example",
+          name: "Bright Smile Owner",
+          passwordHash: await bcrypt.hash("demo1234", 12),
+          role: "owner",
+        },
+      },
+    },
+  });
+
   console.log(`Seeded organization "${org.name}" with demo login demo@mew.ai / demo1234`);
+  console.log("Also seeded a second client org so the Agency console has content.");
 }
 
 main()

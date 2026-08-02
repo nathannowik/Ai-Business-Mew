@@ -9,11 +9,18 @@ const NAV = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/receptionist", label: "AI Receptionist" },
   { href: "/dashboard/leads", label: "AI Lead Follow-Up" },
+  { href: "/dashboard/customer-service", label: "AI Customer Service" },
   { href: "/dashboard/calls", label: "Calls" },
   { href: "/dashboard/appointments", label: "Appointments" },
   { href: "/dashboard/knowledge", label: "Knowledge Base" },
   { href: "/dashboard/integrations", label: "Integrations" },
 ];
+
+interface Me {
+  organization: { name: string };
+  isPlatformAdmin?: boolean;
+  impersonating?: boolean;
+}
 
 export default function DashboardLayout({
   children,
@@ -23,16 +30,16 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
-  const [orgName, setOrgName] = useState("");
+  const [me, setMe] = useState<Me | null>(null);
 
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
-    api<{ organization: { name: string } }>("/me")
-      .then((me) => {
-        setOrgName(me.organization.name);
+    api<Me>("/me")
+      .then((data) => {
+        setMe(data);
         setReady(true);
       })
       .catch(() => {
@@ -40,6 +47,20 @@ export default function DashboardLayout({
         router.replace("/login");
       });
   }, [router]);
+
+  function exitImpersonation() {
+    const adminToken = window.localStorage.getItem("mew_admin_token");
+    if (adminToken) {
+      window.localStorage.setItem("mew_token", adminToken);
+      window.localStorage.removeItem("mew_admin_token");
+    }
+    window.location.href = "/dashboard/agency";
+  }
+
+  const nav = [...NAV];
+  if (me?.isPlatformAdmin) {
+    nav.push({ href: "/dashboard/agency", label: "Agency (all clients)" });
+  }
 
   if (!ready) {
     return (
@@ -54,10 +75,12 @@ export default function DashboardLayout({
       <aside className="flex w-64 flex-col border-r border-slate-200 bg-white">
         <div className="border-b border-slate-200 px-6 py-5">
           <p className="text-lg font-bold text-slate-900">Mew AI</p>
-          <p className="truncate text-sm text-slate-500">{orgName}</p>
+          <p className="truncate text-sm text-slate-500">
+            {me?.organization.name}
+          </p>
         </div>
         <nav className="flex-1 space-y-1 p-3">
-          {NAV.map((item) => {
+          {nav.map((item) => {
             const active =
               item.href === "/dashboard"
                 ? pathname === item.href
@@ -87,7 +110,23 @@ export default function DashboardLayout({
           Sign out
         </button>
       </aside>
-      <main className="flex-1 overflow-y-auto bg-slate-50 p-8">{children}</main>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {me?.impersonating && (
+          <div className="flex items-center justify-between bg-amber-100 px-6 py-2 text-sm text-amber-900">
+            <span>
+              Viewing client <strong>{me.organization.name}</strong> as platform
+              admin.
+            </span>
+            <button
+              onClick={exitImpersonation}
+              className="rounded-md bg-amber-900 px-3 py-1 text-xs font-medium text-white hover:bg-amber-800"
+            >
+              Exit client view
+            </button>
+          </div>
+        )}
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-8">{children}</main>
+      </div>
     </div>
   );
 }

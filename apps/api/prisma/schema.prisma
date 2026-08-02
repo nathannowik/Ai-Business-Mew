@@ -22,15 +22,17 @@ model Organization {
   appointments   Appointment[]
   knowledgeDocs  KnowledgeDoc[]
   leads          Lead[]
+  chatSessions   ChatSession[]
 }
 
 model User {
   id             String       @id @default(cuid())
   email          String       @unique
   name           String
-  passwordHash   String
-  role           Role         @default(owner)
-  organizationId String
+  passwordHash    String
+  role            Role         @default(owner)
+  isPlatformAdmin Boolean      @default(false)
+  organizationId  String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
 
@@ -141,6 +143,18 @@ enum LeadChannel {
   sms
   email
   form
+}
+
+/// A customer-service chat conversation from the public website widget.
+model ChatSession {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  transcript     Json         @default("[]") // ChatTurn[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
 }
 
 model KnowledgeDoc {

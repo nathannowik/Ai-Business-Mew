@@ -5,6 +5,7 @@ import { prisma } from "../db.js";
 import { receptionistRoutes } from "./receptionist/routes.js";
 import { registerTwilioWebhooks } from "./receptionist/twilio.js";
 import { leadFollowUpRoutes } from "./lead_follow_up/routes.js";
+import { customerServiceRoutes } from "./customer_service/routes.js";
 import { integrationRoutes } from "../integrations/routes.js";
 
 /**
@@ -17,6 +18,7 @@ export async function registerModules(app: FastifyInstance): Promise<void> {
   await receptionistRoutes(app);
   await registerTwilioWebhooks(app);
   await leadFollowUpRoutes(app);
+  await customerServiceRoutes(app);
   // await reviewManagementRoutes(app);   // next up
 
   // Catalog + per-org enablement state, used by the dashboard to render tiles.

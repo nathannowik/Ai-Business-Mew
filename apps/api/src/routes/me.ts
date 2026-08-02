@@ -6,19 +6,29 @@ export async function meRoutes(app: FastifyInstance): Promise<void> {
   app.get("/me", { preHandler: authenticate }, async (request, reply) => {
     const user = await prisma.user.findUnique({
       where: { id: request.auth!.userId },
-      include: { organization: true },
     });
     if (!user) return reply.code(404).send({ error: "User not found" });
+
+    // Use the org from the token, so platform-admin impersonation shows the
+    // organization being acted on rather than the admin's home org.
+    const activeOrgId = request.auth!.organizationId;
+    const organization = await prisma.organization.findUnique({
+      where: { id: activeOrgId },
+    });
+    if (!organization) return reply.code(404).send({ error: "Organization not found" });
+
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
-      organizationId: user.organizationId,
+      isPlatformAdmin: user.isPlatformAdmin,
+      organizationId: activeOrgId,
+      impersonating: activeOrgId !== user.organizationId,
       organization: {
-        id: user.organization.id,
-        name: user.organization.name,
-        createdAt: user.organization.createdAt,
+        id: organization.id,
+        name: organization.name,
+        createdAt: organization.createdAt,
       },
     };
   });

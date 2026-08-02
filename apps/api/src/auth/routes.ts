@@ -44,6 +44,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       userId: user.id,
       organizationId: org.id,
       role: user.role,
+      isPlatformAdmin: user.isPlatformAdmin,
     });
     return reply.code(201).send({
       token,
@@ -53,6 +54,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         name: user.name,
         role: user.role,
         organizationId: org.id,
+        isPlatformAdmin: user.isPlatformAdmin,
       },
     });
   });
@@ -73,6 +75,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       userId: user.id,
       organizationId: user.organizationId,
       role: user.role,
+      isPlatformAdmin: user.isPlatformAdmin,
     });
     return reply.send({
       token,
@@ -82,6 +85,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         name: user.name,
         role: user.role,
         organizationId: user.organizationId,
+        isPlatformAdmin: user.isPlatformAdmin,
       },
     });
   });

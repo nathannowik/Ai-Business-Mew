@@ -40,7 +40,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     key: "customer_service",
     name: "AI Customer Service Agent",
     description: "Answers customer questions using the company's information.",
-    status: "planned",
+    status: "live",
     integrations: ["knowledge_base"],
   },
   {

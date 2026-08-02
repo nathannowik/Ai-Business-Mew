@@ -15,7 +15,10 @@ These need no new telephony and ship fast:
 - [x] **AI Lead Follow-Up** — inbound lead → instant SMS/email, qualify, book
       (agent + web-form and inbound-SMS webhooks + dashboard simulator)
 - [x] **Integrations UI + encrypted secret storage** (Twilio, Email/SMTP)
-- [ ] **AI Customer Service Agent** — website/chat widget over the knowledge base
+- [x] **AI Customer Service Agent** — public chat API + embeddable website widget
+      over the knowledge base, with conversation history
+- [x] **Agency console** — platform-admin view of all client orgs, create-client,
+      and scoped impersonation to open any client's dashboard
 - [ ] **AI Employee Knowledge Base** — internal chatbot (same retrieval, internal docs)
 - [ ] Lead follow-up: scheduled re-engagement (drip) if a lead goes quiet
 

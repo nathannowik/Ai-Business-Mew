@@ -22,7 +22,7 @@ on the dashboard as "coming soon".
 |---|---------|--------|
 | 1 | AI Receptionist | ✅ live |
 | 2 | AI Lead Follow-Up | ✅ live |
-| 3 | AI Customer Service Agent | 🔜 planned |
+| 3 | AI Customer Service Agent | ✅ live |
 | 4 | AI Employee Knowledge Base | 🔜 planned |
 | 5 | AI Appointment Scheduling | 🟡 beta (booking works via receptionist) |
 | 6 | AI Sales Assistant | 🔜 planned |
@@ -99,6 +99,26 @@ Other ways leads enter the system:
   `{ name, phone, email, inquiry }` — creates the lead and fires instant outreach.
 - **Inbound SMS:** point your Twilio number's Messaging webhook at
   `POST {PUBLIC_API_URL}/webhooks/twilio/sms?orgId={orgId}` — the AI replies by text.
+
+## Trying AI Customer Service
+
+Go to **AI Customer Service**, configure the greeting, and use the test chat
+(it calls the same public endpoint the website widget uses). Add facts under
+**Knowledge Base** so it can answer specifics. To put it on a client's website,
+copy the one-line embed snippet — it loads a floating chat bubble:
+
+```html
+<script src="{API}/widget.js?org={orgId}"></script>
+```
+
+## Agency console (for you, the operator)
+
+If your user is a **platform admin**, an **Agency (all clients)** item appears in
+the sidebar. From it you can see every client organization with rollup stats,
+create a new client (org + owner login), and **Open** any client's dashboard
+(a scoped, reversible impersonation — a banner lets you exit back to the
+console). The demo account (`demo@mew.ai`) is seeded as a platform admin so you
+can try it, and a second demo client is seeded so the console isn't empty.
 
 ## Connecting tools (Integrations)
 

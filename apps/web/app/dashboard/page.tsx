@@ -11,6 +11,7 @@ type ServiceTile = ServiceDefinition & { enabled: boolean };
 const SERVICE_LINKS: Record<string, string> = {
   receptionist: "/dashboard/receptionist",
   lead_follow_up: "/dashboard/leads",
+  customer_service: "/dashboard/customer-service",
 };
 
 const STATUS_STYLES: Record<string, string> = {
