@@ -106,6 +106,35 @@ function ConfigForm() {
             <option value="email">Email</option>
           </select>
         </label>
+
+        <div className="rounded-lg border border-slate-200 p-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <input
+              type="checkbox"
+              checked={config.dripEnabled}
+              onChange={(e) => setConfig({ ...config, dripEnabled: e.target.checked })}
+            />
+            Auto re-engage quiet leads (drip)
+          </label>
+          <label className="mt-3 block">
+            <span className="mb-1 block text-sm text-slate-600">
+              Nudge after (days, comma-separated)
+            </span>
+            <input
+              value={config.dripStepsDays.join(", ")}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  dripStepsDays: e.target.value
+                    .split(",")
+                    .map((s) => parseInt(s.trim(), 10))
+                    .filter((n) => Number.isFinite(n) && n > 0),
+                })
+              }
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            />
+          </label>
+        </div>
       </div>
 
       <div className="mt-5 flex items-center gap-3">

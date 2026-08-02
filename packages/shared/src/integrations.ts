@@ -48,6 +48,16 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
     ],
     usedBy: ["lead_follow_up"],
   },
+  {
+    key: "google_business",
+    name: "Google Business Profile",
+    description: "Monitor and import new Google reviews for AI responses.",
+    fields: [
+      { key: "locationId", label: "Location ID", type: "text", placeholder: "locations/12345" },
+      { key: "apiToken", label: "API Token", type: "password" },
+    ],
+    usedBy: ["review_management"],
+  },
 ];
 
 /** What the API returns for an integration — never includes secret values. */

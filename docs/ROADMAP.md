@@ -21,7 +21,15 @@ These need no new telephony and ship fast:
       and scoped impersonation to open any client's dashboard
 - [x] **AI Employee Knowledge Base** — internal staff chat over all docs
       (public + internal SOPs); knowledge docs now carry an `internal` flag
-- [ ] Lead follow-up: scheduled re-engagement (drip) if a lead goes quiet
+- [x] Lead follow-up: scheduled re-engagement (drip) — nudges quiet leads on a
+      configurable cadence (e.g. 1/3/7 days), with STOP opt-out; runs on the
+      background scheduler
+- [x] Activity feed — unified cross-service timeline (calls, leads, bookings,
+      chats, reviews, documents, drips) with unread badge
+- [x] Sales Assistant: call-recording upload + transcription (OpenAI Whisper),
+      feeding the existing analysis
+- [x] Review monitoring framework — Google Business Profile integration + dedup
+      + scheduled polling (the Google API call itself is stubbed pending creds)
 
 ## Phase 2 — Scheduling & reviews (done)
 - [x] **AI Appointment Scheduling** — create, reschedule, cancel, plus

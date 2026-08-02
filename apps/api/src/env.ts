@@ -54,6 +54,21 @@ export const env = {
     },
   },
 
+  transcription: {
+    // Audio transcription (OpenAI Whisper) — separate from Claude, which has
+    // no audio API. Optional; endpoints degrade gracefully when unset.
+    openaiApiKey: optional("OPENAI_API_KEY"),
+    model: optional("TRANSCRIPTION_MODEL", "whisper-1"),
+    get enabled() {
+      return Boolean(process.env.OPENAI_API_KEY);
+    },
+  },
+
+  /** Background scheduler (drip follow-ups, review polling). Off during tests. */
+  get schedulerEnabled() {
+    return process.env.NODE_ENV !== "test" && process.env.DISABLE_SCHEDULER !== "1";
+  },
+
   get aiEnabled() {
     return Boolean(process.env.ANTHROPIC_API_KEY);
   },

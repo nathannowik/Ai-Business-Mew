@@ -100,6 +100,7 @@ export async function runLeadAgent(
   config: LeadFollowUpConfig,
   history: LeadMessage[],
   incomingText: string | null,
+  opts: { nudge?: boolean } = {},
 ): Promise<LeadTurnResult> {
   const knowledge = await getKnowledgeContext(lead.organizationId);
   const system = buildSystemPrompt(lead, config, knowledge);
@@ -111,6 +112,12 @@ export async function runLeadAgent(
 
   if (incomingText) {
     working.push({ role: "user", content: incomingText });
+  } else if (opts.nudge) {
+    working.push({
+      role: "user",
+      content:
+        "[The lead hasn't replied. Send a brief, friendly follow-up that adds value and invites a response. Vary it from earlier messages and don't be pushy.]",
+    });
   } else {
     working.push({
       role: "user",

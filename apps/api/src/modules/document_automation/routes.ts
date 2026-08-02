@@ -5,6 +5,7 @@ import { env } from "../../env.js";
 import { prisma } from "../../db.js";
 import { requireEntitlement } from "../../middleware/requireEntitlement.js";
 import { getKnowledgeContext } from "../receptionist/service.js";
+import { logActivity } from "../../activity/service.js";
 import { renderPdf } from "./pdf.js";
 
 export async function documentAutomationRoutes(app: FastifyInstance): Promise<void> {
@@ -56,6 +57,7 @@ export async function documentAutomationRoutes(app: FastifyInstance): Promise<vo
     const doc = await prisma.document.create({
       data: { organizationId, docType, title, customerName, content: result.text },
     });
+    await logActivity(organizationId, "document", `${title}`);
     return reply.code(201).send(doc);
   });
 

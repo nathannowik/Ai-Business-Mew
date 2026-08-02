@@ -81,6 +81,12 @@ export interface Lead {
   status: LeadStatus;
   inquiry: string | null;
   messages: LeadMessage[];
+  /** How many automated re-engagement (drip) messages have been sent. */
+  dripStep: number;
+  /** Timestamp of our last outbound message (drives drip timing). */
+  lastOutreachAt: string | null;
+  /** True if the lead texted STOP/unsubscribe — no further drips. */
+  optedOut: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -94,6 +100,29 @@ export interface LeadFollowUpConfig {
   /** Preferred outreach channel when both phone and email are available. */
   preferredChannel: LeadChannel;
   enabled: boolean;
+  /** Automatically re-engage quiet leads. */
+  dripEnabled: boolean;
+  /** Days after the last outreach to send each successive nudge, e.g. [1,3,7]. */
+  dripStepsDays: number[];
+}
+
+// --- Activity feed ---
+export type ActivityType =
+  | "call"
+  | "lead"
+  | "lead_drip"
+  | "appointment"
+  | "review"
+  | "chat"
+  | "document";
+
+export interface ActivityEvent {
+  id: string;
+  type: ActivityType;
+  title: string;
+  detail: string | null;
+  read: boolean;
+  createdAt: string;
 }
 
 export interface CustomerServiceConfig {

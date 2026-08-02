@@ -14,12 +14,36 @@ export default function ReviewsPage() {
     load().catch(() => setReviews([]));
   }, []);
 
+  async function sync() {
+    try {
+      const res = await api<{ imported: number }>("/reviews/sync", { method: "POST" });
+      alert(
+        res.imported > 0
+          ? `Imported ${res.imported} new review(s).`
+          : "No new reviews. (Connect Google Business Profile under Integrations to monitor reviews.)",
+      );
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Sync failed");
+    }
+  }
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">AI Review Management</h1>
-      <p className="mt-1 text-slate-500">
-        Request reviews after jobs and draft on-brand responses.
-      </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">AI Review Management</h1>
+          <p className="mt-1 text-slate-500">
+            Request reviews after jobs and draft on-brand responses.
+          </p>
+        </div>
+        <button
+          onClick={sync}
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Sync from Google
+        </button>
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <RequestReview />

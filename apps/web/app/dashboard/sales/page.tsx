@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { Opportunity, OpportunityStage, SalesCall } from "@mew/shared";
-import { api } from "../../../lib/api";
+import { api, getToken } from "../../../lib/api";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 const STAGES: OpportunityStage[] = ["new", "qualified", "proposal", "won", "lost"];
 const STAGE_STYLES: Record<string, string> = {
@@ -34,10 +36,32 @@ function CallAnalyzer() {
   const [calls, setCalls] = useState<SalesCall[]>([]);
   const [selected, setSelected] = useState<SalesCall | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
     setCalls(await api<SalesCall[]>("/sales/calls"));
+  }
+
+  async function upload(file: File) {
+    setUploading(true);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API_URL}/sales/transcribe`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: form,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Transcription failed");
+      setTranscript(data.transcript);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   }
   useEffect(() => {
     load().catch(() => setCalls([]));
@@ -78,6 +102,16 @@ function CallAnalyzer() {
           placeholder="Paste the call transcript here…"
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
         />
+        <label className="flex items-center gap-2 text-sm text-slate-500">
+          <span>or upload a recording:</span>
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+            className="text-xs"
+          />
+          {uploading && <span className="text-slate-400">transcribing…</span>}
+        </label>
         <button
           onClick={analyze}
           disabled={busy}

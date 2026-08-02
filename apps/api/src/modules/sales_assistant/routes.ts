@@ -6,6 +6,7 @@ import { chat } from "../../ai/claude.js";
 import { env } from "../../env.js";
 import { prisma } from "../../db.js";
 import { requireEntitlement } from "../../middleware/requireEntitlement.js";
+import { transcribeAudio } from "../../transcription/service.js";
 
 function safeParseAnalysis(text: string): { analysis: SalesCallAnalysis | null; followUpDraft: string | null } {
   try {
@@ -70,6 +71,19 @@ export async function salesAssistantRoutes(app: FastifyInstance): Promise<void> 
       },
     });
     return reply.code(201).send(call);
+  });
+
+  // Transcribe an uploaded call recording (multipart file field "file").
+  app.post("/sales/transcribe", { preHandler: guard }, async (request, reply) => {
+    const file = await request.file();
+    if (!file) return reply.code(400).send({ error: "No file uploaded" });
+    try {
+      const buffer = await file.toBuffer();
+      const transcript = await transcribeAudio(buffer, file.filename);
+      return { transcript };
+    } catch (err) {
+      return reply.code(400).send({ error: (err as Error).message });
+    }
   });
 
   // --- Opportunity pipeline ---

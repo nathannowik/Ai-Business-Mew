@@ -1,4 +1,6 @@
 import type { LeadChannel, LeadMessage } from "@mew/shared";
+import { prisma } from "../../db.js";
+import { logActivity } from "../../activity/service.js";
 import { sendEmail, sendSms } from "../../channels/send.js";
 import { runLeadAgent } from "./agent.js";
 import {
@@ -9,6 +11,8 @@ import {
   pickChannel,
   setLeadStatus,
 } from "./service.js";
+
+const OPT_OUT = /\b(stop|unsubscribe|quit|cancel|opt.?out)\b/i;
 
 export interface LeadTurnOutcome {
   reply: string;
@@ -65,6 +69,22 @@ export async function runLeadFollowUp(
       at: new Date().toISOString(),
     };
     await appendMessage(leadId, inbound);
+
+    // Honor opt-out immediately — no AI, no further drips.
+    if (OPT_OUT.test(incomingText)) {
+      const msg = "You've been unsubscribed and won't receive further messages.";
+      await appendMessage(leadId, {
+        direction: "outbound",
+        channel: channel ?? "form",
+        text: msg,
+        at: new Date().toISOString(),
+      });
+      await prisma.lead.update({
+        where: { id: leadId },
+        data: { optedOut: true, lastOutreachAt: new Date() },
+      });
+      return { reply: msg, channel, simulated: true, status: lead.status };
+    }
   }
 
   const { reply, status } = await runLeadAgent(
@@ -99,5 +119,57 @@ export async function runLeadFollowUp(
   const newStatus = status ?? (lead.status === "new" ? "contacted" : lead.status);
   if (newStatus !== lead.status) await setLeadStatus(leadId, newStatus);
 
+  // Track outreach time; a lead reply resets the drip cadence.
+  await prisma.lead.update({
+    where: { id: leadId },
+    data: { lastOutreachAt: new Date(), ...(incomingText ? { dripStep: 0 } : {}) },
+  });
+
   return { reply, channel, simulated, status: newStatus };
+}
+
+/** Send the next automated re-engagement (drip) message to a quiet lead. */
+export async function runLeadDrip(
+  leadId: string,
+  opts: { forceSimulate?: boolean } = {},
+): Promise<LeadTurnOutcome | null> {
+  const lead = await getLead(leadId);
+  if (!lead || lead.optedOut) return null;
+  if (["booked", "lost"].includes(lead.status)) return null;
+
+  const config = await getLeadFollowUpConfig(lead.organizationId);
+  const channel = pickChannel(lead, config);
+
+  const { reply } = await runLeadAgent(
+    {
+      id: lead.id,
+      organizationId: lead.organizationId,
+      name: lead.name,
+      phone: lead.phone,
+      inquiry: lead.inquiry,
+      channel: channel ?? "form",
+    },
+    config,
+    getMessages(lead),
+    null,
+    { nudge: true },
+  );
+
+  let simulated = true;
+  if (channel && !opts.forceSimulate) {
+    simulated = await deliver(lead.organizationId, channel, lead, reply);
+  }
+  await appendMessage(leadId, {
+    direction: "outbound",
+    channel: channel ?? "form",
+    text: reply,
+    at: new Date().toISOString(),
+  });
+  await prisma.lead.update({
+    where: { id: leadId },
+    data: { dripStep: lead.dripStep + 1, lastOutreachAt: new Date() },
+  });
+  await logActivity(lead.organizationId, "lead_drip", `Re-engaged lead: ${lead.name}`);
+
+  return { reply, channel, simulated, status: lead.status };
 }

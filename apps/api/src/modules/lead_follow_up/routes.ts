@@ -7,6 +7,7 @@ import { authenticate } from "../../middleware/authenticate.js";
 import { requireEntitlement } from "../../middleware/requireEntitlement.js";
 import { isEntitled } from "../../billing/service.js";
 import { runLeadFollowUp } from "./controller.js";
+import { runDripForOrg } from "./drip.js";
 import {
   createLead,
   findLeadByPhone,
@@ -21,6 +22,8 @@ const configSchema = z.object({
   qualificationCriteria: z.string(),
   preferredChannel: z.enum(["sms", "email", "form"]),
   enabled: z.boolean(),
+  dripEnabled: z.boolean(),
+  dripStepsDays: z.array(z.number().int().positive()).max(10),
 });
 
 const createLeadSchema = z.object({
@@ -97,6 +100,16 @@ export async function leadFollowUpRoutes(app: FastifyInstance): Promise<void> {
     }
     return reply.code(201).send({ lead });
   });
+
+  // Manually run the drip cycle now (also runs automatically on a schedule).
+  app.post(
+    "/lead-follow-up/run-drips",
+    { preHandler: requireEntitlement("lead_follow_up") },
+    async (request) => {
+      const sent = await runDripForOrg(request.auth!.organizationId, { forceSimulate: true });
+      return { sent };
+    },
+  );
 
   // Simulate a back-and-forth from the dashboard (no real SMS/email sent).
   const simSchema = z.object({

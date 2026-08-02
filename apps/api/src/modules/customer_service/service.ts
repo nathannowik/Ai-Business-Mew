@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { ChatTurn, CustomerServiceConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
+import { logActivity } from "../../activity/service.js";
 
 const DEFAULT_CONFIG: CustomerServiceConfig = {
   businessName: "the business",
@@ -57,9 +58,11 @@ export async function getOrCreateSession(
     });
     if (existing) return existing;
   }
-  return prisma.chatSession.create({
+  const session = await prisma.chatSession.create({
     data: { organizationId, transcript: [] },
   });
+  await logActivity(organizationId, "chat", "New website chat started");
+  return session;
 }
 
 export async function appendChatTurns(sessionId: string, turns: ChatTurn[]) {

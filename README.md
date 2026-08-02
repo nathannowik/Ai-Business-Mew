@@ -150,6 +150,22 @@ and point your Twilio number's Voice webhook at
 `POST {PUBLIC_API_URL}/webhooks/twilio/voice/incoming`. See
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#telephony).
 
+## Automation & activity
+
+- **Background scheduler** (`apps/api/src/scheduler.ts`) runs every 15 minutes:
+  it re-engages quiet leads (drip) and polls connected review sources. It's off
+  during tests and can be disabled with `DISABLE_SCHEDULER=1`.
+- **Lead drip:** configurable per client (e.g. nudge at 1/3/7 days); replying
+  resets the cadence, and "STOP" opts the lead out. Trigger on demand via
+  `POST /lead-follow-up/run-drips`.
+- **Activity feed:** a unified timeline of everything happening across services
+  (calls, leads, bookings, chats, reviews, documents, drips) with an unread
+  badge in the dashboard.
+- **Call transcription:** upload a recording on the Sales Assistant page and it's
+  transcribed (OpenAI Whisper — set `OPENAI_API_KEY`) before analysis.
+- **Review monitoring:** connect Google Business Profile under Integrations; the
+  scheduler imports new reviews (deduped) for AI responses.
+
 ## Testing
 
 The backend has an automated test suite (Vitest): unit tests for the

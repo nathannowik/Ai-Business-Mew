@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { CallTurn, ReceptionistConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
+import { logActivity } from "../../activity/service.js";
 
 /** Prisma's Json columns want an index-signature type; our typed shapes are safe to cast. */
 function asJson(value: unknown): Prisma.InputJsonValue {
@@ -82,7 +83,7 @@ export interface BookAppointmentInput {
 }
 
 export async function bookAppointment(input: BookAppointmentInput) {
-  return prisma.appointment.create({
+  const appt = await prisma.appointment.create({
     data: {
       organizationId: input.organizationId,
       customerName: input.customerName,
@@ -93,6 +94,13 @@ export async function bookAppointment(input: BookAppointmentInput) {
       source: "receptionist",
     },
   });
+  await logActivity(
+    input.organizationId,
+    "appointment",
+    `Appointment booked: ${input.customerName}`,
+    appt.startsAt.toLocaleString(),
+  );
+  return appt;
 }
 
 /** Create a Call row when a new call comes in. */
@@ -102,7 +110,7 @@ export async function startCall(params: {
   toNumber: string;
   externalId?: string;
 }) {
-  return prisma.call.create({
+  const call = await prisma.call.create({
     data: {
       organizationId: params.organizationId,
       fromNumber: params.fromNumber,
@@ -111,6 +119,8 @@ export async function startCall(params: {
       transcript: [],
     },
   });
+  await logActivity(params.organizationId, "call", `Incoming call from ${params.fromNumber}`);
+  return call;
 }
 
 export async function getCall(callId: string) {

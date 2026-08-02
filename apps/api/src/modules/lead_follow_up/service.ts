@@ -6,6 +6,7 @@ import type {
   LeadStatus,
 } from "@mew/shared";
 import { prisma } from "../../db.js";
+import { logActivity } from "../../activity/service.js";
 
 const DEFAULT_CONFIG: LeadFollowUpConfig = {
   businessName: "the business",
@@ -14,6 +15,8 @@ const DEFAULT_CONFIG: LeadFollowUpConfig = {
     "A qualified lead has a real need we can serve, is in our service area, and is ready to schedule.",
   preferredChannel: "sms",
   enabled: true,
+  dripEnabled: true,
+  dripStepsDays: [1, 3, 7],
 };
 
 export async function getLeadFollowUpConfig(
@@ -61,7 +64,7 @@ export interface CreateLeadInput {
 }
 
 export async function createLead(input: CreateLeadInput) {
-  return prisma.lead.create({
+  const lead = await prisma.lead.create({
     data: {
       organizationId: input.organizationId,
       name: input.name,
@@ -73,6 +76,13 @@ export async function createLead(input: CreateLeadInput) {
       messages: [],
     },
   });
+  await logActivity(
+    input.organizationId,
+    "lead",
+    `New lead: ${input.name}`,
+    input.inquiry ?? null,
+  );
+  return lead;
 }
 
 export async function getLead(leadId: string) {

@@ -7,6 +7,7 @@ import { api, clearToken, getToken } from "../../lib/api";
 
 const NAV = [
   { href: "/dashboard", label: "Overview" },
+  { href: "/dashboard/activity", label: "Activity" },
   { href: "/dashboard/receptionist", label: "AI Receptionist" },
   { href: "/dashboard/leads", label: "AI Lead Follow-Up" },
   { href: "/dashboard/customer-service", label: "AI Customer Service" },
@@ -38,6 +39,18 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [me, setMe] = useState<Me | null>(null);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!getToken()) return;
+    const poll = () =>
+      api<{ count: number }>("/activity/unread-count")
+        .then((r) => setUnread(r.count))
+        .catch(() => undefined);
+    poll();
+    const id = setInterval(poll, 20000);
+    return () => clearInterval(id);
+  }, [pathname]);
 
   useEffect(() => {
     if (!getToken()) {
@@ -96,13 +109,18 @@ export default function DashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition ${
                   active
                     ? "bg-brand-50 text-brand-700"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {item.href === "/dashboard/activity" && unread > 0 && (
+                  <span className="ml-2 rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">
+                    {unread}
+                  </span>
+                )}
               </Link>
             );
           })}

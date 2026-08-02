@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { prisma } from "../db.js";
 import { authenticate } from "../middleware/authenticate.js";
+import { logActivity } from "../activity/service.js";
 
 const createSchema = z.object({
   customerName: z.string().min(1),
@@ -29,19 +30,24 @@ export async function appointmentRoutes(app: FastifyInstance): Promise<void> {
         return reply.code(400).send({ error: parsed.error.flatten() });
       }
       const d = parsed.data;
-      return reply.code(201).send(
-        await prisma.appointment.create({
-          data: {
-            organizationId: request.auth!.organizationId,
-            customerName: d.customerName,
-            customerPhone: d.customerPhone ?? null,
-            startsAt: new Date(d.startsAt),
-            durationMinutes: d.durationMinutes ?? 30,
-            notes: d.notes ?? null,
-            source: "manual",
-          },
-        }),
+      const appt = await prisma.appointment.create({
+        data: {
+          organizationId: request.auth!.organizationId,
+          customerName: d.customerName,
+          customerPhone: d.customerPhone ?? null,
+          startsAt: new Date(d.startsAt),
+          durationMinutes: d.durationMinutes ?? 30,
+          notes: d.notes ?? null,
+          source: "manual",
+        },
+      });
+      await logActivity(
+        request.auth!.organizationId,
+        "appointment",
+        `Appointment booked: ${appt.customerName}`,
+        appt.startsAt.toLocaleString(),
       );
+      return reply.code(201).send(appt);
     },
   );
 

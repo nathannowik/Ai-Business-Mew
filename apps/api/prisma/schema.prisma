@@ -29,6 +29,7 @@ model Organization {
   reviews        Review[]
   salesCalls     SalesCall[]
   opportunities  Opportunity[]
+  activityEvents ActivityEvent[]
 }
 
 model User {
@@ -130,6 +131,9 @@ model Lead {
   status         LeadStatus   @default(new)
   inquiry        String?
   messages       Json         @default("[]") // LeadMessage[]
+  dripStep       Int          @default(0)
+  lastOutreachAt DateTime?
+  optedOut       Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -207,9 +211,26 @@ model Review {
   source         String       @default("manual")
   status         String       @default("new")
   draftResponse  String?
+  externalId     String? // e.g. Google review id, for dedup on sync
   createdAt      DateTime     @default(now())
 
+  @@unique([organizationId, externalId])
   @@index([organizationId])
+}
+
+/// Cross-service activity timeline shown on the dashboard.
+model ActivityEvent {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type           String
+  title          String
+  detail         String?
+  read           Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, read])
+  @@index([organizationId, createdAt])
 }
 
 /// A customer-service chat conversation from the public website widget.

@@ -6,6 +6,8 @@ import { prisma } from "../../db.js";
 import { requireEntitlement } from "../../middleware/requireEntitlement.js";
 import { sendEmail, sendSms } from "../../channels/send.js";
 import { getReceptionistConfig } from "../receptionist/service.js";
+import { logActivity } from "../../activity/service.js";
+import { syncReviews } from "./monitor.js";
 
 export async function reviewManagementRoutes(app: FastifyInstance): Promise<void> {
   const guard = requireEntitlement("review_management");
@@ -70,17 +72,27 @@ export async function reviewManagementRoutes(app: FastifyInstance): Promise<void
     if (!parsed.success) {
       return reply.code(400).send({ error: parsed.error.flatten() });
     }
-    return reply.code(201).send(
-      await prisma.review.create({
-        data: {
-          organizationId: request.auth!.organizationId,
-          author: parsed.data.author,
-          rating: parsed.data.rating,
-          text: parsed.data.text,
-          source: parsed.data.source ?? "manual",
-        },
-      }),
+    const review = await prisma.review.create({
+      data: {
+        organizationId: request.auth!.organizationId,
+        author: parsed.data.author,
+        rating: parsed.data.rating,
+        text: parsed.data.text,
+        source: parsed.data.source ?? "manual",
+      },
+    });
+    await logActivity(
+      request.auth!.organizationId,
+      "review",
+      `New ${review.rating}★ review from ${review.author}`,
     );
+    return reply.code(201).send(review);
+  });
+
+  // Pull new reviews from the connected source (e.g. Google Business Profile).
+  app.post("/reviews/sync", { preHandler: guard }, async (request) => {
+    const imported = await syncReviews(request.auth!.organizationId);
+    return { imported };
   });
 
   // Draft an AI response to a review.
