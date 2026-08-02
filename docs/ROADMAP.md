@@ -41,7 +41,9 @@ These need no new telephony and ship fast:
       other modules now produce (calls, leads, appointments, reviews, sales)
 
 ## Cross-cutting (do alongside)
-- [ ] Billing & subscriptions (Stripe), per-service plans, usage metering
+- [x] Billing & subscriptions (Stripe) with plan tiers + entitlement gating
+      (simulation mode when Stripe isn't configured); webhook status sync
+- [ ] Usage metering / per-seat or per-usage add-ons on top of the base plans
 - [ ] Integrations UI (connect Twilio, Google, CRM with OAuth) + secret vault
 - [ ] Admin/agency view: manage many client organizations from one console
 - [ ] Audit logging, RBAC, SSO for larger clients

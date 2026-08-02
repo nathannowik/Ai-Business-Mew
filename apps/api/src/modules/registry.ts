@@ -7,6 +7,7 @@ import { registerTwilioWebhooks } from "./receptionist/twilio.js";
 import { leadFollowUpRoutes } from "./lead_follow_up/routes.js";
 import { customerServiceRoutes } from "./customer_service/routes.js";
 import { integrationRoutes } from "../integrations/routes.js";
+import { isEntitled } from "../billing/service.js";
 
 /**
  * Central place where AI service modules register their routes. Adding the next
@@ -23,13 +24,18 @@ export async function registerModules(app: FastifyInstance): Promise<void> {
 
   // Catalog + per-org enablement state, used by the dashboard to render tiles.
   app.get("/services", { preHandler: authenticate }, async (request) => {
+    const orgId = request.auth!.organizationId;
     const configs = await prisma.serviceConfig.findMany({
-      where: { organizationId: request.auth!.organizationId },
+      where: { organizationId: orgId },
     });
     const enabledByKey = new Map(configs.map((c) => [c.serviceKey, c.enabled]));
-    return SERVICE_CATALOG.map((s) => ({
-      ...s,
-      enabled: enabledByKey.get(s.key) ?? false,
-    }));
+    return Promise.all(
+      SERVICE_CATALOG.map(async (s) => ({
+        ...s,
+        enabled: enabledByKey.get(s.key) ?? false,
+        // Whether the org's current plan unlocks this service.
+        entitled: await isEntitled(orgId, s.key),
+      })),
+    );
   });
 }

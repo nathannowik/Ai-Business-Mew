@@ -74,6 +74,15 @@ async function main() {
           },
         ],
       },
+      subscription: {
+        // Demo org is on Pro (simulated) so every service is unlocked.
+        create: {
+          planKey: "pro",
+          status: "active",
+          simulated: true,
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      },
       knowledgeDocs: {
         create: [
           {

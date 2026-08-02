@@ -23,6 +23,7 @@ model Organization {
   knowledgeDocs  KnowledgeDoc[]
   leads          Lead[]
   chatSessions   ChatSession[]
+  subscription   Subscription?
 }
 
 model User {
@@ -143,6 +144,22 @@ enum LeadChannel {
   sms
   email
   form
+}
+
+/// Per-organization subscription. `simulated` marks plans activated without a
+/// real Stripe subscription (Stripe not configured).
+model Subscription {
+  id                   String       @id @default(cuid())
+  organizationId       String       @unique
+  organization         Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  planKey              String?
+  status               String       @default("none")
+  simulated            Boolean      @default(false)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
 
 /// A customer-service chat conversation from the public website widget.

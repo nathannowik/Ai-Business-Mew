@@ -7,6 +7,7 @@ import { meRoutes } from "./routes/me.js";
 import { adminRoutes } from "./routes/admin.js";
 import { appointmentRoutes } from "./routes/appointments.js";
 import { knowledgeRoutes } from "./routes/knowledge.js";
+import { billingRoutes } from "./billing/routes.js";
 import { registerModules } from "./modules/registry.js";
 
 async function main(): Promise<void> {
@@ -27,6 +28,7 @@ async function main(): Promise<void> {
   await app.register(adminRoutes);
   await app.register(appointmentRoutes);
   await app.register(knowledgeRoutes);
+  await app.register(billingRoutes);
   await app.register(registerModules);
 
   try {

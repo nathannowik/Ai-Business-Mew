@@ -26,6 +26,7 @@
     "fastify": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.16",
+    "stripe": "^17.4.0",
     "twilio": "^5.3.6",
     "zod": "^3.23.8"
   },

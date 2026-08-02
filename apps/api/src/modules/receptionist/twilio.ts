@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import twilio from "twilio";
 import { env } from "../../env.js";
 import { prisma } from "../../db.js";
+import { isEntitled } from "../../billing/service.js";
 import { runReceptionistTurn } from "./agent.js";
 import {
   endCall,
@@ -57,7 +58,7 @@ export async function registerTwilioWebhooks(app: FastifyInstance): Promise<void
       }
 
       const config = await getReceptionistConfig(organizationId);
-      if (!config.enabled) {
+      if (!config.enabled || !(await isEntitled(organizationId, "receptionist"))) {
         twiml.say("Sorry, we cannot take your call right now. Goodbye.");
         twiml.hangup();
         return reply.type("text/xml").send(twiml.toString());

@@ -4,6 +4,8 @@ import twilio from "twilio";
 import type { LeadFollowUpConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
 import { authenticate } from "../../middleware/authenticate.js";
+import { requireEntitlement } from "../../middleware/requireEntitlement.js";
+import { isEntitled } from "../../billing/service.js";
 import { runLeadFollowUp } from "./controller.js";
 import {
   createLead,
@@ -106,7 +108,7 @@ export async function leadFollowUpRoutes(app: FastifyInstance): Promise<void> {
 
   app.post(
     "/lead-follow-up/simulate",
-    { preHandler: authenticate },
+    { preHandler: requireEntitlement("lead_follow_up") },
     async (request, reply) => {
       const parsed = simSchema.safeParse(request.body);
       if (!parsed.success) {
@@ -165,7 +167,10 @@ export async function leadFollowUpRoutes(app: FastifyInstance): Promise<void> {
         channel: d.phone ? "sms" : d.email ? "email" : "form",
         inquiry: d.inquiry,
       });
-      await runLeadFollowUp(lead.id, null);
+      // Capture the lead regardless, but only auto-contact if the plan includes it.
+      if (await isEntitled(org.id, "lead_follow_up")) {
+        await runLeadFollowUp(lead.id, null);
+      }
       return reply.code(201).send({ ok: true, leadId: lead.id });
     },
   );
@@ -179,6 +184,9 @@ export async function leadFollowUpRoutes(app: FastifyInstance): Promise<void> {
       const twiml = new twilio.twiml.MessagingResponse();
 
       if (!from || !text || !request.query.orgId) {
+        return reply.type("text/xml").send(twiml.toString());
+      }
+      if (!(await isEntitled(request.query.orgId, "lead_follow_up"))) {
         return reply.type("text/xml").send(twiml.toString());
       }
 

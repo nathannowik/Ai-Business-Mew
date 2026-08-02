@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { ReceptionistConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
 import { authenticate } from "../../middleware/authenticate.js";
+import { requireEntitlement } from "../../middleware/requireEntitlement.js";
 import { runReceptionistTurn } from "./agent.js";
 import {
   getReceptionistConfig,
@@ -80,7 +81,7 @@ export async function receptionistRoutes(app: FastifyInstance): Promise<void> {
 
   app.post(
     "/receptionist/simulate",
-    { preHandler: authenticate },
+    { preHandler: requireEntitlement("receptionist") },
     async (request, reply) => {
       const parsed = simTurnSchema.safeParse(request.body);
       if (!parsed.success) {

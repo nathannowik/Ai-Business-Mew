@@ -120,6 +120,21 @@ create a new client (org + owner login), and **Open** any client's dashboard
 console). The demo account (`demo@mew.ai`) is seeded as a platform admin so you
 can try it, and a second demo client is seeded so the console isn't empty.
 
+## Billing & plans
+
+The **Billing & Plans** page offers three subscription tiers (Starter $99,
+Growth $299, Pro $599/mo). Each plan **unlocks a set of services** — that's the
+entitlement layer: service action endpoints check the org's plan and return
+`402` (dashboard shows an upgrade prompt) if it isn't included.
+
+- **With Stripe configured** (`STRIPE_SECRET_KEY`): subscribing opens Stripe
+  Checkout; a webhook (`POST /webhooks/stripe`, signature-verified) syncs the
+  subscription status. "Manage billing" opens the Stripe customer portal.
+- **Without Stripe** (default here): plans activate in **simulation mode**
+  (instant, no charge) so the whole flow — subscribe, gate services, cancel — is
+  testable. The seeded demo org is on **Pro**; the second demo org has no plan,
+  so you can see gating (its services show 🔒 and its endpoints return 402/403).
+
 ## Connecting tools (Integrations)
 
 The **Integrations** page lets each client connect **Twilio** (phone + SMS) and

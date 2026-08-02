@@ -14,6 +14,7 @@ const NAV = [
   { href: "/dashboard/appointments", label: "Appointments" },
   { href: "/dashboard/knowledge", label: "Knowledge Base" },
   { href: "/dashboard/integrations", label: "Integrations" },
+  { href: "/dashboard/billing", label: "Billing & Plans" },
 ];
 
 interface Me {

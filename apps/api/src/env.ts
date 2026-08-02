@@ -44,6 +44,16 @@ export const env = {
     },
   },
 
+  appBaseUrl: optional("APP_BASE_URL", "http://localhost:3000"),
+
+  stripe: {
+    secretKey: optional("STRIPE_SECRET_KEY"),
+    webhookSecret: optional("STRIPE_WEBHOOK_SECRET"),
+    get enabled() {
+      return Boolean(process.env.STRIPE_SECRET_KEY);
+    },
+  },
+
   get aiEnabled() {
     return Boolean(process.env.ANTHROPIC_API_KEY);
   },

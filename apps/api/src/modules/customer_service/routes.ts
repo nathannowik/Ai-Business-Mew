@@ -4,6 +4,7 @@ import type { ChatTurn, CustomerServiceConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
 import { env } from "../../env.js";
 import { authenticate } from "../../middleware/authenticate.js";
+import { isEntitled } from "../../billing/service.js";
 import { runSupportChat } from "./agent.js";
 import {
   appendChatTurns,
@@ -73,7 +74,7 @@ export async function customerServiceRoutes(app: FastifyInstance): Promise<void>
       if (!org) return reply.code(404).send({ error: "Unknown organization" });
 
       const config = await getCustomerServiceConfig(org.id);
-      if (!config.enabled) {
+      if (!config.enabled || !(await isEntitled(org.id, "customer_service"))) {
         return reply.code(403).send({ error: "Chat is not enabled" });
       }
 

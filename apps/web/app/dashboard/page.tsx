@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ServiceDefinition } from "@mew/shared";
 import { api } from "../../lib/api";
 
-type ServiceTile = ServiceDefinition & { enabled: boolean };
+type ServiceTile = ServiceDefinition & { enabled: boolean; entitled: boolean };
 
 // Live services that have a dedicated dashboard page.
 const SERVICE_LINKS: Record<string, string> = {
@@ -53,6 +53,14 @@ export default function OverviewPage() {
                 </span>
               </div>
               <p className="mt-2 text-sm text-slate-500">{s.description}</p>
+              {s.status !== "planned" && !s.entitled && (
+                <p className="mt-3 text-xs font-medium text-amber-600">
+                  🔒 Not in your plan —{" "}
+                  <Link href="/dashboard/billing" className="underline">
+                    upgrade
+                  </Link>
+                </p>
+              )}
             </div>
           );
           const href = SERVICE_LINKS[s.key];
