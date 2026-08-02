@@ -21,7 +21,7 @@ on the dashboard as "coming soon".
 | # | Service | Status |
 |---|---------|--------|
 | 1 | AI Receptionist | ✅ live |
-| 2 | AI Lead Follow-Up | 🔜 planned |
+| 2 | AI Lead Follow-Up | ✅ live |
 | 3 | AI Customer Service Agent | 🔜 planned |
 | 4 | AI Employee Knowledge Base | 🔜 planned |
 | 5 | AI Appointment Scheduling | 🟡 beta (booking works via receptionist) |
@@ -85,6 +85,28 @@ runs the exact same AI logic a real call uses. Try:
 
 Bookings show up under **Appointments**; the conversation is saved under
 **Calls**.
+
+## Trying AI Lead Follow-Up
+
+Go to **AI Lead Follow-Up** and use the simulator: seed a lead (name + phone +
+inquiry), hit **Start follow-up**, and the AI sends the first message. Reply as
+the lead and watch it qualify and book. Leads and their status
+(new → contacted → qualified → booked/lost) appear in the table below, and
+transcripts expand inline.
+
+Other ways leads enter the system:
+- **Website form:** `POST {PUBLIC_API_URL}/webhooks/leads/{orgId}` with
+  `{ name, phone, email, inquiry }` — creates the lead and fires instant outreach.
+- **Inbound SMS:** point your Twilio number's Messaging webhook at
+  `POST {PUBLIC_API_URL}/webhooks/twilio/sms?orgId={orgId}` — the AI replies by text.
+
+## Connecting tools (Integrations)
+
+The **Integrations** page lets each client connect **Twilio** (phone + SMS) and
+**Email (SMTP)**. Credentials are **encrypted at rest** (AES-256-GCM) and never
+returned to the browser. Until a tool is connected, the receptionist and lead
+follow-up run in **simulation mode** (messages are logged, not sent), so you can
+build and demo the whole product before wiring up real accounts.
 
 **Real phone calls (Twilio):** set the Twilio vars in `.env`, expose your API
 with a tunnel (e.g. `ngrok http 4000`), set `PUBLIC_API_URL` to the tunnel URL,

@@ -24,20 +24,35 @@ async function main() {
         create: { email, name: "Demo Owner", passwordHash, role: "owner" },
       },
       serviceConfigs: {
-        create: {
-          serviceKey: "receptionist",
-          enabled: true,
-          config: {
-            greeting:
-              "Thanks for calling Sunrise Plumbing! This is the AI assistant — how can I help you today?",
-            businessName: "Sunrise Plumbing Co.",
-            businessHours: "Monday to Saturday, 7am to 6pm",
-            transferNumber: null,
-            instructions:
-              "We do residential plumbing: repairs, installs, and emergencies. Emergency calls should be flagged and offered the earliest slot.",
+        create: [
+          {
+            serviceKey: "receptionist",
             enabled: true,
+            config: {
+              greeting:
+                "Thanks for calling Sunrise Plumbing! This is the AI assistant — how can I help you today?",
+              businessName: "Sunrise Plumbing Co.",
+              businessHours: "Monday to Saturday, 7am to 6pm",
+              transferNumber: null,
+              instructions:
+                "We do residential plumbing: repairs, installs, and emergencies. Emergency calls should be flagged and offered the earliest slot.",
+              enabled: true,
+            },
           },
-        },
+          {
+            serviceKey: "lead_follow_up",
+            enabled: true,
+            config: {
+              businessName: "Sunrise Plumbing Co.",
+              instructions:
+                "Residential plumbing. Emergencies get the earliest slot. Always try to book a specific day and time.",
+              qualificationCriteria:
+                "Qualified = residential plumbing need within 25 miles of downtown Springfield and ready to schedule a visit.",
+              preferredChannel: "sms",
+              enabled: true,
+            },
+          },
+        ],
       },
       knowledgeDocs: {
         create: [

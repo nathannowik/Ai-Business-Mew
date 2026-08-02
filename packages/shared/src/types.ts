@@ -56,6 +56,41 @@ export interface KnowledgeDoc {
   updatedAt: string;
 }
 
+export type LeadStatus = "new" | "contacted" | "qualified" | "booked" | "lost";
+export type LeadChannel = "sms" | "email" | "form";
+
+export interface LeadMessage {
+  direction: "outbound" | "inbound";
+  channel: LeadChannel;
+  text: string;
+  at: string;
+}
+
+export interface Lead {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  source: string;
+  channel: LeadChannel;
+  status: LeadStatus;
+  inquiry: string | null;
+  messages: LeadMessage[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadFollowUpConfig {
+  businessName: string;
+  /** Persona/instructions appended to the follow-up agent's system prompt. */
+  instructions: string;
+  /** What a qualified lead looks like — the AI uses this to decide. */
+  qualificationCriteria: string;
+  /** Preferred outreach channel when both phone and email are available. */
+  preferredChannel: LeadChannel;
+  enabled: boolean;
+}
+
 export interface ReceptionistConfig {
   greeting: string;
   businessName: string;

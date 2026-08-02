@@ -33,7 +33,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     name: "AI Lead Follow-Up",
     description:
       "Instantly texts/emails leads, qualifies prospects, and books jobs.",
-    status: "planned",
+    status: "live",
     integrations: ["twilio", "email", "crm"],
   },
   {

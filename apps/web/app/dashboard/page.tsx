@@ -7,6 +7,12 @@ import { api } from "../../lib/api";
 
 type ServiceTile = ServiceDefinition & { enabled: boolean };
 
+// Live services that have a dedicated dashboard page.
+const SERVICE_LINKS: Record<string, string> = {
+  receptionist: "/dashboard/receptionist",
+  lead_follow_up: "/dashboard/leads",
+};
+
 const STATUS_STYLES: Record<string, string> = {
   live: "bg-green-100 text-green-700",
   beta: "bg-amber-100 text-amber-700",
@@ -48,8 +54,9 @@ export default function OverviewPage() {
               <p className="mt-2 text-sm text-slate-500">{s.description}</p>
             </div>
           );
-          return s.key === "receptionist" ? (
-            <Link key={s.key} href="/dashboard/receptionist">
+          const href = SERVICE_LINKS[s.key];
+          return href ? (
+            <Link key={s.key} href={href}>
               {tile}
             </Link>
           ) : (

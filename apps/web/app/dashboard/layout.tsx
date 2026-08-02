@@ -8,9 +8,11 @@ import { api, clearToken, getToken } from "../../lib/api";
 const NAV = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/receptionist", label: "AI Receptionist" },
+  { href: "/dashboard/leads", label: "AI Lead Follow-Up" },
   { href: "/dashboard/calls", label: "Calls" },
   { href: "/dashboard/appointments", label: "Appointments" },
   { href: "/dashboard/knowledge", label: "Knowledge Base" },
+  { href: "/dashboard/integrations", label: "Integrations" },
 ];
 
 export default function DashboardLayout({

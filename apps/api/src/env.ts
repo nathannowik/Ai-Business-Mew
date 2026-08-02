@@ -26,6 +26,7 @@ export const env = {
 
   jwtSecret: optional("JWT_SECRET", "dev-insecure-secret-change-me"),
   jwtExpiresIn: optional("JWT_EXPIRES_IN", "7d"),
+  integrationEncryptionKey: optional("INTEGRATION_ENCRYPTION_KEY"),
 
   anthropicApiKey: optional("ANTHROPIC_API_KEY"),
   aiModel: optional("AI_MODEL", "claude-sonnet-5"),

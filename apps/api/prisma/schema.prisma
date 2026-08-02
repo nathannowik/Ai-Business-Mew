@@ -21,6 +21,7 @@ model Organization {
   calls          Call[]
   appointments   Appointment[]
   knowledgeDocs  KnowledgeDoc[]
+  leads          Lead[]
 }
 
 model User {
@@ -107,6 +108,39 @@ model Appointment {
   createdAt       DateTime     @default(now())
 
   @@index([organizationId])
+}
+
+model Lead {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  phone          String?
+  email          String?
+  source         String       @default("form")
+  channel        LeadChannel  @default(form)
+  status         LeadStatus   @default(new)
+  inquiry        String?
+  messages       Json         @default("[]") // LeadMessage[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([phone])
+}
+
+enum LeadStatus {
+  new
+  contacted
+  qualified
+  booked
+  lost
+}
+
+enum LeadChannel {
+  sms
+  email
+  form
 }
 
 model KnowledgeDoc {

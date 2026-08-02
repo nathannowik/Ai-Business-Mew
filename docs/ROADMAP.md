@@ -12,10 +12,12 @@ order — earliest ROI and least new infrastructure first.
 
 ## Phase 1 — Text-based services (reuse the AI + knowledge base)
 These need no new telephony and ship fast:
+- [x] **AI Lead Follow-Up** — inbound lead → instant SMS/email, qualify, book
+      (agent + web-form and inbound-SMS webhooks + dashboard simulator)
+- [x] **Integrations UI + encrypted secret storage** (Twilio, Email/SMTP)
 - [ ] **AI Customer Service Agent** — website/chat widget over the knowledge base
 - [ ] **AI Employee Knowledge Base** — internal chatbot (same retrieval, internal docs)
-- [ ] **AI Lead Follow-Up** — inbound lead → instant SMS/email, qualify, book
-      (adds an email integration; reuses Twilio SMS + booking)
+- [ ] Lead follow-up: scheduled re-engagement (drip) if a lead goes quiet
 
 ## Phase 2 — Scheduling & reviews
 - [ ] **AI Appointment Scheduling** — confirmations, reminders, rescheduling
