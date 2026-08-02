@@ -10,6 +10,9 @@ import { businessReportingRoutes } from "./business_reporting/routes.js";
 import { marketingAssistantRoutes } from "./marketing_assistant/routes.js";
 import { documentAutomationRoutes } from "./document_automation/routes.js";
 import { reviewManagementRoutes } from "./review_management/routes.js";
+import { employeeKnowledgeBaseRoutes } from "./employee_knowledge_base/routes.js";
+import { salesAssistantRoutes } from "./sales_assistant/routes.js";
+import { schedulingRoutes } from "./scheduling/routes.js";
 import { integrationRoutes } from "../integrations/routes.js";
 import { isEntitled } from "../billing/service.js";
 
@@ -28,6 +31,9 @@ export async function registerModules(app: FastifyInstance): Promise<void> {
   await marketingAssistantRoutes(app);
   await documentAutomationRoutes(app);
   await reviewManagementRoutes(app);
+  await employeeKnowledgeBaseRoutes(app);
+  await salesAssistantRoutes(app);
+  await schedulingRoutes(app);
 
   // Catalog + per-org enablement state, used by the dashboard to render tiles.
   app.get("/services", { preHandler: authenticate }, async (request) => {

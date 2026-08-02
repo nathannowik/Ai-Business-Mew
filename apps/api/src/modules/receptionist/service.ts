@@ -48,12 +48,20 @@ export async function saveReceptionistConfig(
   return config;
 }
 
-/** Concatenate the org's knowledge docs into a context block for the prompt. */
+/**
+ * Concatenate the org's knowledge docs into a context block for the prompt.
+ * By default only public docs are included; the Employee KB passes
+ * includeInternal to also use internal policies/SOPs.
+ */
 export async function getKnowledgeContext(
   organizationId: string,
+  opts: { includeInternal?: boolean } = {},
 ): Promise<string> {
   const docs = await prisma.knowledgeDoc.findMany({
-    where: { organizationId },
+    where: {
+      organizationId,
+      ...(opts.includeInternal ? {} : { internal: false }),
+    },
     orderBy: { updatedAt: "desc" },
     take: 25,
   });

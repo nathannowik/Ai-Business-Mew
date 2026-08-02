@@ -55,6 +55,9 @@ export interface KnowledgeDoc {
   id: string;
   title: string;
   content: string;
+  /** Internal docs (policies/SOPs) are used by the Employee KB but never by the
+   *  public-facing customer service / receptionist agents. */
+  internal: boolean;
   updatedAt: string;
 }
 
@@ -145,6 +148,33 @@ export interface GeneratedDocument {
   customerName: string;
   content: string;
   createdAt: string;
+}
+
+// --- Sales Assistant ---
+export interface SalesCallAnalysis {
+  score: number; // 1-100
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  nextSteps: string[];
+}
+export interface SalesCall {
+  id: string;
+  title: string;
+  transcript: string;
+  analysis: SalesCallAnalysis | null;
+  followUpDraft: string | null;
+  createdAt: string;
+}
+export type OpportunityStage = "new" | "qualified" | "proposal" | "won" | "lost";
+export interface Opportunity {
+  id: string;
+  name: string;
+  stage: OpportunityStage;
+  value: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // --- Review Management ---

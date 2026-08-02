@@ -16,6 +16,9 @@ const SERVICE_LINKS: Record<string, string> = {
   document_automation: "/dashboard/documents",
   review_management: "/dashboard/reviews",
   business_reporting: "/dashboard/reporting",
+  knowledge_base: "/dashboard/employee-kb",
+  sales_assistant: "/dashboard/sales",
+  scheduling: "/dashboard/appointments",
 };
 
 const STATUS_STYLES: Record<string, string> = {

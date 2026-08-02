@@ -19,22 +19,23 @@ These need no new telephony and ship fast:
       over the knowledge base, with conversation history
 - [x] **Agency console** — platform-admin view of all client orgs, create-client,
       and scoped impersonation to open any client's dashboard
-- [ ] **AI Employee Knowledge Base** — internal chatbot (same retrieval, internal docs)
+- [x] **AI Employee Knowledge Base** — internal staff chat over all docs
+      (public + internal SOPs); knowledge docs now carry an `internal` flag
 - [ ] Lead follow-up: scheduled re-engagement (drip) if a lead goes quiet
 
-## Phase 2 — Scheduling & reviews
-- [ ] **AI Appointment Scheduling** — confirmations, reminders, rescheduling
-      (promote the beta booking into a full module with reminders)
-- [ ] **AI Review Management** — request reviews after jobs, monitor + draft
-      responses (Google Business Profile API)
-
-## Phase 2 — Reviews (done)
+## Phase 2 — Scheduling & reviews (done)
+- [x] **AI Appointment Scheduling** — create, reschedule, cancel, plus
+      confirmation/reminder messaging (deterministic; sends via Twilio when
+      connected). Auto-scheduled reminders (cron) still to add.
+- [x] **AI Review Management** — request reviews after jobs, monitor + draft
+      responses (Google Business Profile API still to wire up)
 - [x] **AI Review Management** — request reviews (SMS/email) + AI-drafted
       responses; live Google Business monitoring still to wire up
 
 ## Phase 3 — Revenue & content
-- [ ] **AI Sales Assistant** — ingest call recordings, transcribe, coach,
-      generate follow-ups, track opportunities (CRM integration)
+- [x] **AI Sales Assistant** — transcript analysis (score, coaching, next steps,
+      follow-up draft) + opportunity pipeline. Live-recording ingest &
+      transcription still to add.
 - [x] **AI Marketing Assistant** — generate posts/emails/ads/blogs (grounded in
       the knowledge base); social scheduling still to add
 - [x] **AI Document Automation** — quotes, proposals, contracts, invoices from

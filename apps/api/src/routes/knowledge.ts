@@ -6,6 +6,7 @@ import { authenticate } from "../middleware/authenticate.js";
 const upsertSchema = z.object({
   title: z.string().min(1),
   content: z.string().min(1),
+  internal: z.boolean().optional(),
 });
 
 export async function knowledgeRoutes(app: FastifyInstance): Promise<void> {
@@ -27,6 +28,7 @@ export async function knowledgeRoutes(app: FastifyInstance): Promise<void> {
           organizationId: request.auth!.organizationId,
           title: parsed.data.title,
           content: parsed.data.content,
+          internal: parsed.data.internal ?? false,
         },
       }),
     );

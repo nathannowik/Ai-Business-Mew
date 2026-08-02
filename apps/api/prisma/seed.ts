@@ -95,6 +95,12 @@ async function main() {
             content:
               "We serve the greater Springfield area within a 25-mile radius of downtown. Outside that radius incurs a travel fee.",
           },
+          {
+            title: "Internal SOP — Emergency Calls & Parts Markup",
+            internal: true,
+            content:
+              "After-hours emergencies: dispatch the on-call tech within 60 minutes; the $95 emergency fee is waived if the customer books a follow-up install. Parts markup is 35% over cost. Never quote a firm price over the phone for jobs over $2,000 — schedule an on-site estimate.",
+          },
         ],
       },
       reviews: {

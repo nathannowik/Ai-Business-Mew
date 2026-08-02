@@ -8,6 +8,7 @@ export default function KnowledgePage() {
   const [docs, setDocs] = useState<KnowledgeDoc[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [internal, setInternal] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function load() {
@@ -25,10 +26,11 @@ export default function KnowledgePage() {
     try {
       await api("/knowledge", {
         method: "POST",
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title, content, internal }),
       });
       setTitle("");
       setContent("");
+      setInternal(false);
       await load();
     } finally {
       setSaving(false);
@@ -68,6 +70,14 @@ export default function KnowledgePage() {
               placeholder="The information the AI should know…"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
             />
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={internal}
+                onChange={(e) => setInternal(e.target.checked)}
+              />
+              Internal only (staff / Employee KB — never shown to customers)
+            </label>
             <button
               type="submit"
               disabled={saving}
@@ -88,7 +98,14 @@ export default function KnowledgePage() {
               className="rounded-xl border border-slate-200 bg-white p-5"
             >
               <div className="flex items-start justify-between">
-                <h3 className="font-semibold text-slate-900">{d.title}</h3>
+                <h3 className="font-semibold text-slate-900">
+                  {d.title}
+                  {d.internal && (
+                    <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">
+                      internal
+                    </span>
+                  )}
+                </h3>
                 <button
                   onClick={() => remove(d.id)}
                   className="text-sm text-red-500 hover:underline"

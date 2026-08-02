@@ -6,9 +6,10 @@ panel. The AI services connect to the client's business tools (phone, calendar,
 email, CRM) through **secure integrations** — the app is a control panel, not
 remote-control software for the client's computer.
 
-The first fully-working service is the **AI Receptionist**. The other nine
-services from the product vision are scaffolded in a module registry and shown
-on the dashboard as "coming soon".
+**All 10 services from the product vision are live**, running as modules on one
+shared platform (auth, multi-tenant data, AI, integrations, billing). The
+platform also includes an **Integrations** layer, a **Billing** system with
+plan-based entitlements, and an **Agency console** for managing all clients.
 
 > **A note on "controlling everything they run":** none of these AI services
 > need control of the client's actual computer. They need to connect to the
@@ -23,9 +24,9 @@ on the dashboard as "coming soon".
 | 1 | AI Receptionist | ✅ live |
 | 2 | AI Lead Follow-Up | ✅ live |
 | 3 | AI Customer Service Agent | ✅ live |
-| 4 | AI Employee Knowledge Base | 🔜 planned |
-| 5 | AI Appointment Scheduling | 🟡 beta (booking works via receptionist) |
-| 6 | AI Sales Assistant | 🔜 planned |
+| 4 | AI Employee Knowledge Base | ✅ live |
+| 5 | AI Appointment Scheduling | ✅ live |
+| 6 | AI Sales Assistant | ✅ live |
 | 7 | AI Marketing Assistant | ✅ live |
 | 8 | AI Review Management | ✅ live |
 | 9 | AI Business Reporting | ✅ live |

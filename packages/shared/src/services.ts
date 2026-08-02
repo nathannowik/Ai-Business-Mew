@@ -48,14 +48,14 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     name: "AI Employee Knowledge Base",
     description:
       "Internal chatbot trained on company documents, policies, and SOPs.",
-    status: "planned",
+    status: "live",
     integrations: ["knowledge_base"],
   },
   {
     key: "scheduling",
     name: "AI Appointment Scheduling",
     description: "Handles booking, confirmations, reminders, and rescheduling.",
-    status: "beta",
+    status: "live",
     integrations: ["calendar", "email", "twilio"],
   },
   {
@@ -63,7 +63,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
     name: "AI Sales Assistant",
     description:
       "Reviews sales calls, coaches reps, creates follow-ups, tracks opportunities.",
-    status: "planned",
+    status: "live",
     integrations: ["crm", "call_recording"],
   },
   {
