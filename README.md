@@ -150,6 +150,25 @@ and point your Twilio number's Voice webhook at
 `POST {PUBLIC_API_URL}/webhooks/twilio/voice/incoming`. See
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#telephony).
 
+## Testing
+
+The backend has an automated test suite (Vitest): unit tests for the
+security-critical logic (secret encryption, JWT, password hashing, plan
+entitlements) and integration tests that drive the real API via
+`app.inject()` — auth & tenant isolation, billing/entitlement gating,
+encrypted-secret handling, the agency console + impersonation, scheduling,
+the sales pipeline, PDF generation, and public/internal knowledge separation.
+
+```bash
+npm test                       # all workspaces
+npm run test --workspace @mew/api
+```
+
+Integration tests use a dedicated `mew_test` Postgres database, created and
+migrated automatically before the run (set `TEST_DATABASE_URL` to override).
+CI (`.github/workflows/ci.yml`) spins up Postgres and runs typecheck → tests →
+build on every push.
+
 ## What to build next
 
 See [`docs/ROADMAP.md`](docs/ROADMAP.md). The short version: each new AI service
