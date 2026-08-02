@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mew-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mew
+      POSTGRES_PASSWORD: mew_dev_password
+      POSTGRES_DB: mew
+    ports:
+      - "5432:5432"
+    volumes:
+      - mew-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mew"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mew-db-data:

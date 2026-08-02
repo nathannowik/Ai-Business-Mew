@@ -1,0 +1,24 @@
+{
+  "name": "ai-business-mew",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-for-business platform: a downloadable client app + backend that runs 10 AI services (starting with the AI Receptionist) via secure integrations.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev:api": "npm run dev --workspace apps/api",
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:desktop": "npm run dev --workspace apps/desktop",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run db:migrate --workspace apps/api",
+    "db:seed": "npm run db:seed --workspace apps/api",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,122 @@
+// Prisma schema for the AI-business platform.
+// Multi-tenant: every row hangs off an Organization (one per client business).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users          User[]
+  integrations   Integration[]
+  serviceConfigs ServiceConfig[]
+  calls          Call[]
+  appointments   Appointment[]
+  knowledgeDocs  KnowledgeDoc[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String
+  passwordHash   String
+  role           Role         @default(owner)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+enum Role {
+  owner
+  admin
+  member
+}
+
+/// Encrypted-at-rest credentials for an external system (Twilio, CRM, etc.).
+/// `config` holds provider-specific JSON. Never return this to the client raw.
+model Integration {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  provider       String // e.g. "twilio", "google_calendar"
+  config         Json
+  connected      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, provider])
+}
+
+/// Per-organization configuration + enablement for a given AI service module.
+model ServiceConfig {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  serviceKey     String // matches SERVICE_CATALOG keys, e.g. "receptionist"
+  enabled        Boolean      @default(false)
+  config         Json
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, serviceKey])
+}
+
+model Call {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  externalId     String? // Twilio Call SID
+  fromNumber     String
+  toNumber       String
+  status         CallStatus   @default(in_progress)
+  summary        String?
+  transcript     Json         @default("[]") // CallTurn[]
+  startedAt      DateTime     @default(now())
+  endedAt        DateTime?
+
+  @@index([organizationId])
+  @@index([externalId])
+}
+
+enum CallStatus {
+  in_progress
+  completed
+  transferred
+  missed
+}
+
+model Appointment {
+  id              String       @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerName    String
+  customerPhone   String?
+  startsAt        DateTime
+  durationMinutes Int          @default(30)
+  notes           String?
+  source          String       @default("receptionist")
+  createdAt       DateTime     @default(now())
+
+  @@index([organizationId])
+}
+
+model KnowledgeDoc {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  title          String
+  content        String
+  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+}
