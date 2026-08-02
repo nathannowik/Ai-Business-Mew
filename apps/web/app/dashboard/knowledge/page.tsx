@@ -53,7 +53,7 @@ export default function KnowledgePage() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <form
           onSubmit={add}
-          className="rounded-xl border border-slate-200 bg-white p-6"
+          className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6"
         >
           <h2 className="font-semibold text-slate-900">Add a document</h2>
           <div className="mt-4 space-y-4">
@@ -95,7 +95,7 @@ export default function KnowledgePage() {
           {docs.map((d) => (
             <div
               key={d.id}
-              className="rounded-xl border border-slate-200 bg-white p-5"
+              className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-5"
             >
               <div className="flex items-start justify-between">
                 <h3 className="font-semibold text-slate-900">

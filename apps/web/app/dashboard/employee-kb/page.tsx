@@ -53,7 +53,7 @@ export default function EmployeeKbPage() {
         (mark sensitive ones “internal”).
       </p>
 
-      <section className="mt-6 flex h-[560px] max-w-3xl flex-col rounded-xl border border-slate-200 bg-white">
+      <section className="mt-6 flex h-[560px] max-w-3xl flex-col rounded-2xl border border-slate-200/80 bg-white shadow-card">
         <div className="flex-1 space-y-3 overflow-y-auto px-6 py-4">
           {turns.length === 0 && (
             <p className="text-sm text-slate-400">

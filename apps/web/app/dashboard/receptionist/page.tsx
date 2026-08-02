@@ -44,7 +44,7 @@ export default function ReceptionistPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Config */}
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
+        <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-slate-900">Configuration</h2>
             <label className="flex items-center gap-2 text-sm">
@@ -141,7 +141,7 @@ function Simulator() {
   }
 
   return (
-    <section className="flex h-[560px] flex-col rounded-xl border border-slate-200 bg-white">
+    <section className="flex h-[560px] flex-col rounded-2xl border border-slate-200/80 bg-white shadow-card">
       <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <h2 className="font-semibold text-slate-900">Test call (simulator)</h2>
         <button

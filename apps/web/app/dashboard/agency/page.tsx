@@ -67,7 +67,7 @@ export default function AgencyPage() {
         {orgs.map((o) => (
           <div
             key={o.id}
-            className="rounded-xl border border-slate-200 bg-white p-5"
+            className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-5"
           >
             <h2 className="font-semibold text-slate-900">{o.name}</h2>
             <p className="text-xs text-slate-400">
@@ -129,7 +129,7 @@ function CreateClient({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={submit}
-      className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2"
+      className="mt-4 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white shadow-card p-6 sm:grid-cols-2"
     >
       <Field label="Business name" value={organizationName} onChange={setOrganizationName} />
       <Field label="Owner name" value={ownerName} onChange={setOwnerName} />

@@ -56,7 +56,7 @@ export default function MarketingPage() {
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
+        <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
           <h2 className="font-semibold text-slate-900">Create content</h2>
           <div className="mt-4 space-y-4">
             <div>
@@ -110,7 +110,7 @@ export default function MarketingPage() {
             <p className="text-sm text-slate-400">No content yet. Generate your first piece.</p>
           )}
           {items.map((c) => (
-            <div key={c.id} className="rounded-xl border border-slate-200 bg-white p-5">
+            <div key={c.id} className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">

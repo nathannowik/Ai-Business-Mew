@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { AuthResponse } from "@mew/shared";
 import { api, setToken } from "../../lib/api";
+import { Logo } from "../../components/icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,53 +40,68 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-        <h1 className="text-2xl font-bold text-slate-900">Mew AI</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {mode === "login" ? "Sign in to your dashboard" : "Create your account"}
-        </p>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+      <div className="pointer-events-none absolute inset-x-0 -top-40 h-96 bg-gradient-to-b from-brand-100/70 to-transparent blur-2xl" />
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex justify-center">
+          <Link href="/">
+            <Logo />
+          </Link>
+        </div>
+        <div className="card p-8 shadow-soft">
+          <h1 className="text-xl font-bold text-slate-900">
+            {mode === "login" ? "Welcome back" : "Create your account"}
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {mode === "login"
+              ? "Sign in to your dashboard."
+              : "Start running your business's AI."}
+          </p>
 
-        <form onSubmit={submit} className="mt-6 space-y-4">
-          {mode === "signup" && (
-            <>
-              <Field label="Your name" value={name} onChange={setName} required />
-              <Field
-                label="Business name"
-                value={organizationName}
-                onChange={setOrganizationName}
-                required
-              />
-            </>
-          )}
-          <Field label="Email" type="email" value={email} onChange={setEmail} required />
-          <Field
-            label="Password"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            required
-          />
+          <form onSubmit={submit} className="mt-6 space-y-4">
+            {mode === "signup" && (
+              <>
+                <Field label="Your name" value={name} onChange={setName} required />
+                <Field
+                  label="Business name"
+                  value={organizationName}
+                  onChange={setOrganizationName}
+                  required
+                />
+              </>
+            )}
+            <Field label="Email" type="email" value={email} onChange={setEmail} required />
+            <Field
+              label="Password"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              required
+            />
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+            )}
+
+            <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
+              {loading ? "…" : mode === "login" ? "Sign in" : "Create account"}
+            </button>
+          </form>
 
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-brand-600 px-4 py-2.5 font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
+            onClick={() => setMode(mode === "login" ? "signup" : "login")}
+            className="mt-5 w-full text-center text-sm font-medium text-brand-600 hover:text-brand-700"
           >
-            {loading ? "…" : mode === "login" ? "Sign in" : "Create account"}
+            {mode === "login"
+              ? "Need an account? Sign up"
+              : "Already have an account? Sign in"}
           </button>
-        </form>
-
-        <button
-          onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          className="mt-4 w-full text-center text-sm text-brand-600 hover:underline"
-        >
-          {mode === "login"
-            ? "Need an account? Sign up"
-            : "Already have an account? Sign in"}
-        </button>
+        </div>
+        {mode === "login" && (
+          <p className="mt-4 text-center text-xs text-slate-400">
+            Demo: demo@mew.ai · demo1234
+          </p>
+        )}
       </div>
     </main>
   );
@@ -105,13 +122,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
+      <span className="label">{label}</span>
       <input
         type={type}
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+        className="input"
       />
     </label>
   );

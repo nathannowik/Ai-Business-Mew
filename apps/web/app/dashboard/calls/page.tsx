@@ -35,7 +35,7 @@ export default function CallsPage() {
         Every call the AI receptionist handled, with full transcripts.
       </p>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
         {calls.length === 0 ? (
           <p className="p-6 text-sm text-slate-400">
             No calls yet. Try the simulator on the AI Receptionist page.

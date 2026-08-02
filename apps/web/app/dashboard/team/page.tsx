@@ -52,7 +52,7 @@ export default function TeamPage() {
         />
       )}
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-500">
             <tr>
@@ -118,7 +118,7 @@ function Invite({
   }
 
   return (
-    <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-2">
+    <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white shadow-card p-6 sm:grid-cols-2">
       <Field label="Name" value={name} onChange={setName} />
       <Field label="Email" type="email" value={email} onChange={setEmail} />
       <label className="block">

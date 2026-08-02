@@ -61,7 +61,7 @@ function ConfigForm() {
   if (!config) return <p className="text-slate-400">Loading…</p>;
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-slate-900">Configuration</h2>
         <label className="flex items-center gap-2 text-sm">
@@ -109,7 +109,7 @@ function EmbedCard({ orgId }: { orgId: string }) {
   const snippet = `<script src="${API_URL}/widget.js?org=${orgId}"></script>`;
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
       <h2 className="font-semibold text-slate-900">Add to your website</h2>
       <p className="mt-1 text-sm text-slate-500">
         Paste this one line before &lt;/body&gt; on any page to show the chat
@@ -171,7 +171,7 @@ function TestChat({ orgId }: { orgId: string }) {
   }
 
   return (
-    <section className="flex h-[560px] flex-col rounded-xl border border-slate-200 bg-white">
+    <section className="flex h-[560px] flex-col rounded-2xl border border-slate-200/80 bg-white shadow-card">
       <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <h2 className="font-semibold text-slate-900">Test the chat widget</h2>
         <button
@@ -248,7 +248,7 @@ function Conversations() {
       <h2 className="mb-3 text-lg font-semibold text-slate-900">
         Recent conversations
       </h2>
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
         {sessions.length === 0 ? (
           <p className="p-6 text-sm text-slate-400">
             No conversations yet. Try the test chat above.

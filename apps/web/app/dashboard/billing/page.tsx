@@ -80,7 +80,7 @@ export default function BillingPage() {
       )}
 
       {sub && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-5">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white shadow-card p-5">
           <div>
             <p className="text-sm text-slate-500">Current plan</p>
             <p className="text-lg font-semibold text-slate-900">

@@ -65,7 +65,7 @@ export default function AppointmentsPage() {
 
       <NewAppointment onCreated={load} />
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
         {items.length === 0 ? (
           <p className="p-6 text-sm text-slate-400">No appointments yet.</p>
         ) : (
@@ -154,7 +154,7 @@ function BookingSettings() {
   }
 
   return (
-    <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5">
+    <section className="mt-4 rounded-2xl border border-slate-200/80 bg-white shadow-card p-5">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-slate-900">Self-service booking</h2>
         <button onClick={() => setOpen((v) => !v)} className="text-sm text-brand-600 hover:underline">
@@ -354,7 +354,7 @@ function NewAppointment({ onCreated }: { onCreated: () => void }) {
       {show && (
         <form
           onSubmit={create}
-          className="mt-3 grid grid-cols-1 gap-3 rounded-xl border border-slate-200 bg-white p-5 sm:grid-cols-2"
+          className="mt-3 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white shadow-card p-5 sm:grid-cols-2"
         >
           <Input label="Customer name" value={customerName} onChange={setCustomerName} />
           <Input label="Phone (optional)" value={customerPhone} onChange={setCustomerPhone} />

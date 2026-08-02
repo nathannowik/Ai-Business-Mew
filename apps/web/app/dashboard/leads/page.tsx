@@ -74,7 +74,7 @@ function ConfigForm() {
   if (!config) return <p className="text-slate-400">Loading…</p>;
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-slate-900">Configuration</h2>
         <label className="flex items-center gap-2 text-sm">
@@ -221,7 +221,7 @@ function Simulator() {
   }
 
   return (
-    <section className="flex h-[560px] flex-col rounded-xl border border-slate-200 bg-white">
+    <section className="flex h-[560px] flex-col rounded-2xl border border-slate-200/80 bg-white shadow-card">
       <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <h2 className="font-semibold text-slate-900">Test a lead (simulator)</h2>
         {leadId && (
@@ -324,7 +324,7 @@ function LeadsList() {
           Export CSV
         </button>
       </div>
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
         {leads.length === 0 ? (
           <p className="p-6 text-sm text-slate-400">
             No leads yet. Use the simulator above to create one.

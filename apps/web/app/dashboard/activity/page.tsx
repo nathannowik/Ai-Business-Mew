@@ -32,7 +32,7 @@ export default function ActivityPage() {
         Everything happening across your AI services, newest first.
       </p>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card">
         {events.length === 0 ? (
           <p className="p-6 text-sm text-slate-400">
             No activity yet. As calls, leads, bookings, chats, and reviews come

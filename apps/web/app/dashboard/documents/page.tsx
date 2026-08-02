@@ -70,7 +70,7 @@ export default function DocumentsPage() {
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
+        <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
           <h2 className="font-semibold text-slate-900">New document</h2>
           <div className="mt-4 space-y-4">
             <div className="flex flex-wrap gap-2">
@@ -142,7 +142,7 @@ export default function DocumentsPage() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
+        <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
           <h2 className="font-semibold text-slate-900">Preview</h2>
           {selected ? (
             <div className="mt-3">

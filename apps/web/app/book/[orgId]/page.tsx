@@ -59,72 +59,82 @@ export default function BookingPage({
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-lg px-6 py-12">
-      <h1 className="text-2xl font-bold text-slate-900">
-        {businessName ? `Book with ${businessName}` : "Book an appointment"}
-      </h1>
+    <main className="relative min-h-screen overflow-hidden px-6 py-12">
+      <div className="pointer-events-none absolute inset-x-0 -top-40 h-96 bg-gradient-to-b from-brand-100/70 to-transparent blur-2xl" />
+      <div className="relative mx-auto max-w-lg">
+        <div className="card p-6 sm:p-8">
+          <h1 className="text-2xl font-bold text-slate-900">
+            {businessName ? `Book with ${businessName}` : "Book an appointment"}
+          </h1>
 
-      {loading && <p className="mt-6 text-slate-400">Loading available times…</p>}
-      {error && !done && <p className="mt-6 text-red-600">{error}</p>}
+          {loading && <p className="mt-6 text-slate-400">Loading available times…</p>}
+          {error && !done && (
+            <p className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-red-600">{error}</p>
+          )}
 
-      {done ? (
-        <div className="mt-8 rounded-xl border border-green-200 bg-green-50 p-6 text-green-800">
-          <p className="text-lg font-semibold">You&apos;re booked! ✅</p>
-          <p className="mt-1 text-sm">
-            {new Date(selected!).toLocaleString()} — we&apos;ll see you then.
-          </p>
-        </div>
-      ) : (
-        !loading &&
-        !error && (
-          <>
-            <p className="mt-2 text-slate-500">Pick a time that works for you.</p>
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {slots.length === 0 && (
-                <p className="col-span-full text-sm text-slate-400">
-                  No open times right now — please check back later.
-                </p>
-              )}
-              {slots.map((s) => (
-                <button
-                  key={s.startISO}
-                  onClick={() => setSelected(s.startISO)}
-                  className={`rounded-lg border px-3 py-2 text-sm ${
-                    selected === s.startISO
-                      ? "border-brand-600 bg-brand-600 text-white"
-                      : "border-slate-300 text-slate-700 hover:border-brand-500"
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-
-            {selected && (
-              <div className="mt-6 space-y-3 rounded-xl border border-slate-200 bg-white p-5">
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                />
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone (for confirmation)"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                />
-                <button
-                  onClick={book}
-                  className="w-full rounded-lg bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700"
-                >
-                  Confirm {new Date(selected).toLocaleString()}
-                </button>
+          {done ? (
+            <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-6 text-center text-green-800">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-green-600 text-white">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+                  <path d="m5 13 4 4L19 7" />
+                </svg>
               </div>
-            )}
-          </>
-        )
-      )}
+              <p className="mt-3 text-lg font-semibold">You&apos;re booked!</p>
+              <p className="mt-1 text-sm">
+                {new Date(selected!).toLocaleString()} — we&apos;ll see you then.
+              </p>
+            </div>
+          ) : (
+            !loading &&
+            !error && (
+              <>
+                <p className="mt-2 text-slate-500">Pick a time that works for you.</p>
+                <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {slots.length === 0 && (
+                    <p className="col-span-full text-sm text-slate-400">
+                      No open times right now — please check back later.
+                    </p>
+                  )}
+                  {slots.map((s) => (
+                    <button
+                      key={s.startISO}
+                      onClick={() => setSelected(s.startISO)}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                        selected === s.startISO
+                          ? "border-brand-600 bg-brand-600 text-white"
+                          : "border-slate-200 text-slate-700 hover:border-brand-400 hover:bg-brand-50"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+
+                {selected && (
+                  <div className="mt-6 space-y-3 border-t border-slate-100 pt-5">
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your name"
+                      className="input"
+                    />
+                    <input
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Phone (for confirmation)"
+                      className="input"
+                    />
+                    <button onClick={book} className="btn-primary w-full py-2.5">
+                      Confirm {new Date(selected).toLocaleString()}
+                    </button>
+                  </div>
+                )}
+              </>
+            )
+          )}
+        </div>
+        <p className="mt-4 text-center text-xs text-slate-400">Powered by Mew AI</p>
+      </div>
     </main>
   );
 }

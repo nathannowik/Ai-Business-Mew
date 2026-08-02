@@ -87,7 +87,7 @@ function ProviderCard({
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="font-semibold text-slate-900">{provider.name}</h2>

@@ -96,7 +96,7 @@ function ReviewCard({ review, onChange }: { review: Review; onChange: () => void
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <div className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-5">
       <div className="flex items-start justify-between">
         <div>
           <p className="font-semibold text-slate-900">
@@ -165,7 +165,7 @@ function RequestReview() {
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
       <h2 className="font-semibold text-slate-900">Request a review</h2>
       <div className="mt-4 space-y-3">
         <Input label="Customer name" value={customerName} onChange={setCustomerName} />
@@ -207,7 +207,7 @@ function AddReview({ onAdded }: { onAdded: () => void }) {
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
+    <section className="rounded-2xl border border-slate-200/80 bg-white shadow-card p-6">
       <h2 className="font-semibold text-slate-900">Add a review</h2>
       <p className="mt-1 text-xs text-slate-400">
         Manually log a review (live monitoring via Google Business is on the roadmap).
