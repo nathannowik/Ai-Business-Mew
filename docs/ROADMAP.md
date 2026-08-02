@@ -4,11 +4,15 @@ The platform (auth, multi-tenancy, AI layer, dashboard, module registry) is
 built. Each remaining service is an incremental module on top of it. Suggested
 order — earliest ROI and least new infrastructure first.
 
-## Phase 0 — Harden the receptionist (now)
-- [ ] Twilio webhook signature validation
-- [ ] Real calendar integration (Google Calendar) so bookings check availability
-- [ ] Post-call summary generation + email/SMS confirmation to the caller
-- [ ] Encrypt integration secrets at rest
+## Phase 0 — Go-live hardening
+- [x] Twilio webhook signature validation (voice + SMS webhooks)
+- [x] Security headers (helmet) + per-IP rate limiting
+- [x] No-double-booking availability checks (self-service booking + slot compute)
+- [x] Encrypt integration secrets at rest
+- [x] Email/SMS confirmation on self-service bookings
+- [x] Google Calendar integration provider (availability sync — API call still to wire)
+- [ ] Post-call summary generation + confirmation SMS on receptionist bookings
+- [ ] Rotate JWT/encryption secrets + refresh tokens
 
 ## Phase 1 — Text-based services (reuse the AI + knowledge base)
 These need no new telephony and ship fast:
@@ -53,6 +57,12 @@ These need no new telephony and ship fast:
 - [x] **AI Business Reporting** — live metrics rollup (calls, leads,
       appointments, chats, conversion) + on-demand AI summary; scheduled/emailed
       reports still to add
+
+## Platform features (done)
+- [x] Dashboard home — KPIs, upcoming appointments, recent activity
+- [x] Customer-facing self-service booking page (`/book/:orgId`) with availability
+- [x] Team seats — invite/manage members per client, role-gated (owner/admin)
+- [x] CSV export for leads and appointments
 
 ## Cross-cutting (do alongside)
 - [x] Billing & subscriptions (Stripe) with plan tiers + entitlement gating

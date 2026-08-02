@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { ServiceDefinition } from "@mew/shared";
+import type { DashboardSummary, ServiceDefinition } from "@mew/shared";
 import { api } from "../../lib/api";
 
 type ServiceTile = ServiceDefinition & { enabled: boolean; entitled: boolean };
@@ -29,17 +29,62 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function OverviewPage() {
   const [services, setServices] = useState<ServiceTile[]>([]);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
 
   useEffect(() => {
     api<ServiceTile[]>("/services").then(setServices).catch(() => setServices([]));
+    api<DashboardSummary>("/dashboard-summary").then(setSummary).catch(() => undefined);
   }, []);
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Your AI services</h1>
-      <p className="mt-1 text-slate-500">
-        Everything Mew runs for your business, in one place.
-      </p>
+      <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+      <p className="mt-1 text-slate-500">Your business at a glance.</p>
+
+      {summary && (
+        <>
+          <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Stat label="Leads" value={summary.metrics.leads} />
+            <Stat label="Appointments" value={summary.metrics.appointments} />
+            <Stat label="Calls" value={summary.metrics.calls} />
+            <Stat label="Reviews" value={summary.metrics.reviews} />
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
+              <h2 className="font-semibold text-slate-900">Upcoming appointments</h2>
+              {summary.upcomingAppointments.length === 0 ? (
+                <p className="mt-2 text-sm text-slate-400">Nothing scheduled.</p>
+              ) : (
+                <ul className="mt-3 space-y-2">
+                  {summary.upcomingAppointments.map((a) => (
+                    <li key={a.id} className="flex justify-between text-sm">
+                      <span className="font-medium text-slate-700">{a.customerName}</span>
+                      <span className="text-slate-500">{new Date(a.startsAt).toLocaleString()}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
+              <h2 className="font-semibold text-slate-900">Recent activity</h2>
+              {summary.recentActivity.length === 0 ? (
+                <p className="mt-2 text-sm text-slate-400">No activity yet.</p>
+              ) : (
+                <ul className="mt-3 space-y-2">
+                  {summary.recentActivity.map((e) => (
+                    <li key={e.id} className="text-sm text-slate-600">
+                      {e.title}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      <h2 className="mt-8 text-lg font-semibold text-slate-900">Your AI services</h2>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {services.map((s) => {
@@ -80,6 +125,15 @@ export default function OverviewPage() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <p className="text-sm text-slate-400">{label}</p>
+      <p className="mt-1 text-3xl font-bold text-slate-900">{value}</p>
     </div>
   );
 }

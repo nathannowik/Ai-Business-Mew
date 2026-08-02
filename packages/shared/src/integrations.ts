@@ -49,6 +49,16 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
     usedBy: ["lead_follow_up"],
   },
   {
+    key: "google_calendar",
+    name: "Google Calendar",
+    description: "Check availability and sync booked appointments.",
+    fields: [
+      { key: "calendarId", label: "Calendar ID", type: "text", placeholder: "primary" },
+      { key: "apiToken", label: "API Token", type: "password" },
+    ],
+    usedBy: ["receptionist", "scheduling"],
+  },
+  {
     key: "google_business",
     name: "Google Business Profile",
     description: "Monitor and import new Google reviews for AI responses.",

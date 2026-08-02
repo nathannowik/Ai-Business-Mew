@@ -1,8 +1,23 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import type { Appointment } from "@mew/shared";
-import { api } from "../../../lib/api";
+import type { Appointment, SchedulingConfig } from "@mew/shared";
+import { api, getToken } from "../../../lib/api";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+
+async function downloadCsv(path: string, filename: string) {
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function AppointmentsPage() {
   const [items, setItems] = useState<Appointment[]>([]);
@@ -27,11 +42,22 @@ export default function AppointmentsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Appointments &amp; Scheduling</h1>
-      <p className="mt-1 text-slate-500">
-        Bookings from the AI receptionist and your team. Reschedule, confirm,
-        remind, or cancel — messages simulate until you connect Twilio.
-      </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Appointments &amp; Scheduling</h1>
+          <p className="mt-1 text-slate-500">
+            Bookings from the AI receptionist, self-service, and your team.
+          </p>
+        </div>
+        <button
+          onClick={() => downloadCsv("/appointments/export.csv", "appointments.csv")}
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <BookingSettings />
 
       {flash && (
         <div className="mt-4 rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-700">{flash}</div>
@@ -101,6 +127,133 @@ export default function AppointmentsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function BookingSettings() {
+  const [orgId, setOrgId] = useState("");
+  const [config, setConfig] = useState<SchedulingConfig | null>(null);
+  const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    api<{ organizationId: string }>("/me").then((m) => setOrgId(m.organizationId));
+    api<SchedulingConfig>("/scheduling/config").then(setConfig).catch(() => undefined);
+  }, []);
+
+  const link = orgId ? `${window.location.origin}/book/${orgId}` : "";
+
+  async function save() {
+    if (!config) return;
+    await api("/scheduling/config", { method: "PUT", body: JSON.stringify(config) });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1500);
+  }
+
+  return (
+    <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-slate-900">Self-service booking</h2>
+        <button onClick={() => setOpen((v) => !v)} className="text-sm text-brand-600 hover:underline">
+          {open ? "Hide settings" : "Availability settings"}
+        </button>
+      </div>
+      <p className="mt-1 text-sm text-slate-500">
+        Share this link so customers can book themselves. Double-booking is
+        prevented automatically.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <code className="flex-1 overflow-x-auto rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700">
+          {link || "…"}
+        </code>
+        <button
+          disabled={!link}
+          onClick={() => {
+            navigator.clipboard.writeText(link);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          }}
+          className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+        >
+          {copied ? "Copied ✓" : "Copy link"}
+        </button>
+        <a
+          href={link || "#"}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Preview
+        </a>
+      </div>
+
+      {open && config && (
+        <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-slate-700">Slot length (minutes):</span>
+            <input
+              type="number"
+              value={config.slotMinutes}
+              onChange={(e) => setConfig({ ...config, slotMinutes: Number(e.target.value) || 30 })}
+              className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm"
+            />
+          </label>
+          <div className="space-y-1">
+            {config.weekly.map((w, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <label className="flex w-24 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!w}
+                    onChange={(e) => {
+                      const weekly = [...config.weekly];
+                      weekly[i] = e.target.checked ? { start: "09:00", end: "17:00" } : null;
+                      setConfig({ ...config, weekly });
+                    }}
+                  />
+                  {DAYS[i]}
+                </label>
+                {w && (
+                  <>
+                    <input
+                      type="time"
+                      value={w.start}
+                      onChange={(e) => {
+                        const weekly = [...config.weekly];
+                        weekly[i] = { ...w, start: e.target.value };
+                        setConfig({ ...config, weekly });
+                      }}
+                      className="rounded-lg border border-slate-300 px-2 py-1"
+                    />
+                    <span className="text-slate-400">to</span>
+                    <input
+                      type="time"
+                      value={w.end}
+                      onChange={(e) => {
+                        const weekly = [...config.weekly];
+                        weekly[i] = { ...w, end: e.target.value };
+                        setConfig({ ...config, weekly });
+                      }}
+                      className="rounded-lg border border-slate-300 px-2 py-1"
+                    />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={save}
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+          >
+            Save availability
+          </button>
+          {saved && <span className="ml-2 text-sm text-green-600">Saved ✓</span>}
+        </div>
+      )}
+    </section>
   );
 }
 

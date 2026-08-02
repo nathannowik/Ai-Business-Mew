@@ -166,6 +166,26 @@ and point your Twilio number's Voice webhook at
 - **Review monitoring:** connect Google Business Profile under Integrations; the
   scheduler imports new reviews (deduped) for AI responses.
 
+## Platform features
+
+- **Dashboard home** — KPIs, upcoming appointments, and recent activity at a glance.
+- **Self-service booking** — each client gets a public page at `/book/:orgId`
+  where their customers pick an open slot; availability comes from the client's
+  configured hours and **double-booking is prevented** server-side.
+- **Team seats** — owners/admins invite colleagues into their workspace with
+  roles (owner/admin/member).
+- **CSV export** — leads and appointments download as CSV.
+
+## Production hardening
+
+- **Twilio webhook signature verification** on all voice/SMS webhooks (uses the
+  org's stored auth token; `TWILIO_SKIP_VALIDATION=1` to bypass in dev tunnels).
+- **Security headers** (helmet) and **per-IP rate limiting** (health + webhooks
+  exempt).
+- **Encrypted integration secrets** at rest (AES-256-GCM).
+- **No-double-booking** availability checks across self-service and slot compute.
+- **Confirmation SMS** on self-service bookings.
+
 ## Testing
 
 The backend has an automated test suite (Vitest): unit tests for the

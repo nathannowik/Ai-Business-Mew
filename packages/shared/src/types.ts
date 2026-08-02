@@ -21,6 +21,39 @@ export interface Organization {
   createdAt: string;
 }
 
+// --- Dashboard summary ---
+export interface DashboardSummary {
+  metrics: { leads: number; appointments: number; calls: number; reviews: number };
+  upcomingAppointments: Appointment[];
+  recentActivity: ActivityEvent[];
+}
+
+// --- Team ---
+export interface TeamMember {
+  id: string;
+  email: string;
+  name: string;
+  role: "owner" | "admin" | "member";
+  createdAt: string;
+}
+
+// --- Self-service booking / scheduling availability ---
+export interface DayWindow {
+  start: string; // "09:00"
+  end: string; // "17:00"
+}
+export interface SchedulingConfig {
+  slotMinutes: number;
+  timezone: string;
+  /** Weekly availability, index 0=Sunday .. 6=Saturday; null = closed that day. */
+  weekly: (DayWindow | null)[];
+  enabled: boolean;
+}
+export interface BookingSlot {
+  startISO: string;
+  label: string;
+}
+
 export type CallStatus = "in_progress" | "completed" | "transferred" | "missed";
 
 export interface CallSummary {

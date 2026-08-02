@@ -3,6 +3,7 @@ import twilio from "twilio";
 import { env } from "../../env.js";
 import { prisma } from "../../db.js";
 import { isEntitled } from "../../billing/service.js";
+import { verifyTwilioSignature } from "../../channels/twilioVerify.js";
 import { runReceptionistTurn } from "./agent.js";
 import {
   endCall,
@@ -57,6 +58,10 @@ export async function registerTwilioWebhooks(app: FastifyInstance): Promise<void
         return reply.type("text/xml").send(twiml.toString());
       }
 
+      if (!(await verifyTwilioSignature(request, organizationId))) {
+        return reply.code(403).send("Invalid Twilio signature");
+      }
+
       const config = await getReceptionistConfig(organizationId);
       if (!config.enabled || !(await isEntitled(organizationId, "receptionist"))) {
         twiml.say("Sorry, we cannot take your call right now. Goodbye.");
@@ -92,6 +97,11 @@ export async function registerTwilioWebhooks(app: FastifyInstance): Promise<void
       const { callId } = request.query;
       const speech = (request.body?.SpeechResult ?? "").trim();
       const twiml = new VoiceResponse();
+
+      const existing = await prisma.call.findUnique({ where: { id: callId } });
+      if (existing && !(await verifyTwilioSignature(request, existing.organizationId))) {
+        return reply.code(403).send("Invalid Twilio signature");
+      }
 
       if (!speech) {
         const gather = twiml.gather({

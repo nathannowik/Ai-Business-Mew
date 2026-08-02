@@ -6,6 +6,7 @@ import { prisma } from "../../db.js";
 import { authenticate } from "../../middleware/authenticate.js";
 import { requireEntitlement } from "../../middleware/requireEntitlement.js";
 import { isEntitled } from "../../billing/service.js";
+import { verifyTwilioSignature } from "../../channels/twilioVerify.js";
 import { runLeadFollowUp } from "./controller.js";
 import { runDripForOrg } from "./drip.js";
 import {
@@ -198,6 +199,9 @@ export async function leadFollowUpRoutes(app: FastifyInstance): Promise<void> {
 
       if (!from || !text || !request.query.orgId) {
         return reply.type("text/xml").send(twiml.toString());
+      }
+      if (!(await verifyTwilioSignature(request, request.query.orgId))) {
+        return reply.code(403).send("Invalid Twilio signature");
       }
       if (!(await isEntitled(request.query.orgId, "lead_follow_up"))) {
         return reply.type("text/xml").send(twiml.toString());

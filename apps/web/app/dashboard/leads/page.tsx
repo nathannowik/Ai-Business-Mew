@@ -2,7 +2,22 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { Lead, LeadFollowUpConfig, LeadMessage } from "@mew/shared";
-import { api } from "../../../lib/api";
+import { api, getToken } from "../../../lib/api";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+
+async function exportLeadsCsv() {
+  const res = await fetch(`${API_URL}/leads/export.csv`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "leads.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 const STATUS_STYLES: Record<string, string> = {
   new: "bg-slate-100 text-slate-600",
@@ -300,7 +315,15 @@ function LeadsList() {
 
   return (
     <div className="mt-6">
-      <h2 className="mb-3 text-lg font-semibold text-slate-900">Leads</h2>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-slate-900">Leads</h2>
+        <button
+          onClick={exportLeadsCsv}
+          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Export CSV
+        </button>
+      </div>
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         {leads.length === 0 ? (
           <p className="p-6 text-sm text-slate-400">
