@@ -47,6 +47,20 @@ export const env = {
 
   appBaseUrl: optional("APP_BASE_URL", "http://localhost:3000"),
 
+  email: {
+    // Transactional email (verification, password reset, invites). Uses Resend
+    // when configured; otherwise emails are logged (simulation) so dev works.
+    resendApiKey: optional("RESEND_API_KEY"),
+    from: optional("EMAIL_FROM", "Mew AI <onboarding@resend.dev>"),
+    get enabled() {
+      return Boolean(process.env.RESEND_API_KEY);
+    },
+  },
+  /** When true, users must verify their email before using the dashboard. */
+  get requireEmailVerification() {
+    return process.env.REQUIRE_EMAIL_VERIFICATION === "1";
+  },
+
   stripe: {
     secretKey: optional("STRIPE_SECRET_KEY"),
     webhookSecret: optional("STRIPE_WEBHOOK_SECRET"),

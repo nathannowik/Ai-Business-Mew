@@ -23,6 +23,7 @@ export async function meRoutes(app: FastifyInstance): Promise<void> {
       name: user.name,
       role: user.role,
       isPlatformAdmin: user.isPlatformAdmin,
+      emailVerified: user.emailVerified,
       organizationId: activeOrgId,
       impersonating: activeOrgId !== user.organizationId,
       organization: {

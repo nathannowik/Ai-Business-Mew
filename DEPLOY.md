@@ -63,6 +63,7 @@ Everything below is optional — the product runs in simulation mode without it.
 | Capability | Env var(s) | Where |
 |-----------|-----------|-------|
 | AI replies (all services) | `ANTHROPIC_API_KEY` | mew-api |
+| Emails (verify, reset, invites) | `RESEND_API_KEY`, `EMAIL_FROM` | mew-api |
 | Call transcription | `OPENAI_API_KEY` | mew-api |
 | Phone + SMS | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | mew-api |
 | Billing | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | mew-api |

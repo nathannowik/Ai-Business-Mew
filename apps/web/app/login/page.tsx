@@ -83,6 +83,14 @@ export default function LoginPage() {
               <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
             )}
 
+            {mode === "login" && (
+              <div className="text-right">
+                <Link href="/forgot-password" className="text-sm text-brand-600 hover:text-brand-700">
+                  Forgot password?
+                </Link>
+              </div>
+            )}
+
             <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
               {loading ? "…" : mode === "login" ? "Sign in" : "Create account"}
             </button>

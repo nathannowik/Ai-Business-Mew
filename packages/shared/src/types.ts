@@ -8,6 +8,22 @@ export interface AuthUser {
   organizationId: string;
   /** Platform operators (you/your agency) who can manage all client orgs. */
   isPlatformAdmin?: boolean;
+  emailVerified?: boolean;
+}
+
+// --- Onboarding ---
+export interface OnboardingStep {
+  key: string;
+  label: string;
+  description: string;
+  done: boolean;
+  href: string;
+}
+export interface OnboardingStatus {
+  steps: OnboardingStep[];
+  completed: number;
+  total: number;
+  complete: boolean;
 }
 
 export interface AuthResponse {

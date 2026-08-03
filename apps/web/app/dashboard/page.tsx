@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { DashboardSummary, ServiceDefinition } from "@mew/shared";
+import type { DashboardSummary, OnboardingStatus, ServiceDefinition } from "@mew/shared";
 import { api } from "../../lib/api";
 import { Icon, type IconName } from "../../components/icons";
 
@@ -50,16 +50,59 @@ const STAT_META: { key: keyof DashboardSummary["metrics"]; label: string; icon: 
 export default function OverviewPage() {
   const [services, setServices] = useState<ServiceTile[]>([]);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [onboarding, setOnboarding] = useState<OnboardingStatus | null>(null);
 
   useEffect(() => {
     api<ServiceTile[]>("/services").then(setServices).catch(() => setServices([]));
     api<DashboardSummary>("/dashboard-summary").then(setSummary).catch(() => undefined);
+    api<OnboardingStatus>("/onboarding-status").then(setOnboarding).catch(() => undefined);
   }, []);
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
       <p className="mt-1 text-slate-500">Your business at a glance.</p>
+
+      {onboarding && !onboarding.complete && (
+        <div className="mt-6 card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <div>
+              <h2 className="font-semibold text-slate-900">Get set up</h2>
+              <p className="text-sm text-slate-500">
+                {onboarding.completed} of {onboarding.total} steps done
+              </p>
+            </div>
+            <div className="h-2 w-32 overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-brand-600 transition-all"
+                style={{ width: `${(onboarding.completed / onboarding.total) * 100}%` }}
+              />
+            </div>
+          </div>
+          <ul className="divide-y divide-slate-100">
+            {onboarding.steps.map((step) => (
+              <li key={step.key}>
+                <Link href={step.href} className="flex items-center gap-3 px-6 py-3 transition hover:bg-slate-50">
+                  <span
+                    className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${
+                      step.done ? "bg-green-600 text-white" : "border-2 border-slate-300 text-transparent"
+                    }`}
+                  >
+                    ✓
+                  </span>
+                  <div className="flex-1">
+                    <p className={`text-sm font-medium ${step.done ? "text-slate-400 line-through" : "text-slate-800"}`}>
+                      {step.label}
+                    </p>
+                    {!step.done && <p className="text-sm text-slate-500">{step.description}</p>}
+                  </div>
+                  {!step.done && <span className="text-sm font-medium text-brand-600">Set up →</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {summary && (
         <>

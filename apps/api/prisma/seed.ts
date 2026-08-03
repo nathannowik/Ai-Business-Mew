@@ -29,6 +29,7 @@ async function main() {
           passwordHash,
           role: "owner",
           isPlatformAdmin: true,
+          emailVerified: true,
         },
       },
       serviceConfigs: {

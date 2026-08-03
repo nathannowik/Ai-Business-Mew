@@ -9,6 +9,7 @@ import { authRoutes } from "./auth/routes.js";
 import { meRoutes } from "./routes/me.js";
 import { adminRoutes } from "./routes/admin.js";
 import { dashboardRoutes } from "./routes/dashboard.js";
+import { onboardingRoutes } from "./routes/onboarding.js";
 import { teamRoutes } from "./routes/team.js";
 import { exportRoutes } from "./routes/exports.js";
 import { appointmentRoutes } from "./routes/appointments.js";
@@ -51,6 +52,7 @@ export async function buildApp(
   await app.register(meRoutes);
   await app.register(adminRoutes);
   await app.register(dashboardRoutes);
+  await app.register(onboardingRoutes);
   await app.register(teamRoutes);
   await app.register(exportRoutes);
   await app.register(appointmentRoutes);

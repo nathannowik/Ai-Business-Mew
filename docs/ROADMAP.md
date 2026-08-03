@@ -58,6 +58,20 @@ These need no new telephony and ship fast:
       appointments, chats, conversion) + on-demand AI summary; scheduled/emailed
       reports still to add
 
+## Client-readiness (done)
+- [x] Transactional email (Resend) — email verification, password reset,
+      team-invite emails; logs in simulation mode without a key
+- [x] Password reset flow (forgot / reset pages + tokenized, hashed, expiring links)
+- [x] Email verification + dashboard "verify your email" banner
+      (REQUIRE_EMAIL_VERIFICATION to enforce at login)
+- [x] Onboarding checklist — computed from real state (plan, config, knowledge,
+      integrations, team), shown on the dashboard until complete
+
+## Client-readiness (next)
+- [ ] Real Google Calendar availability (wire the stubbed API call)
+- [ ] Legal pages (Terms, Privacy) + account data export / deletion
+- [ ] Error monitoring (Sentry) + automated DB backups
+
 ## Platform features (done)
 - [x] Dashboard home — KPIs, upcoming appointments, recent activity
 - [x] Customer-facing self-service booking page (`/book/:orgId`) with availability

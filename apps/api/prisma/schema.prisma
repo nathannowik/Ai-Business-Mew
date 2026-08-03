@@ -39,6 +39,7 @@ model User {
   passwordHash    String
   role            Role         @default(owner)
   isPlatformAdmin Boolean      @default(false)
+  emailVerified   Boolean      @default(false)
   organizationId  String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
@@ -50,6 +51,20 @@ enum Role {
   owner
   admin
   member
+}
+
+/// Short-lived tokens for email verification and password reset. The raw token
+/// is emailed; only its hash is stored.
+model AuthToken {
+  id         String   @id @default(cuid())
+  type       String // "email_verify" | "password_reset"
+  tokenHash  String   @unique
+  userId     String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
 }
 
 /// Encrypted-at-rest credentials for an external system (Twilio, CRM, etc.).

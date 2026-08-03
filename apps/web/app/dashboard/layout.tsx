@@ -64,6 +64,7 @@ interface Me {
   organization: { name: string };
   isPlatformAdmin?: boolean;
   impersonating?: boolean;
+  emailVerified?: boolean;
 }
 
 function initials(name: string): string {
@@ -106,6 +107,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [pathname]);
 
   useEffect(() => setMobileOpen(false), [pathname]);
+
+  const [resent, setResent] = useState(false);
+  async function resendVerification() {
+    await api("/auth/resend-verification", { method: "POST" }).catch(() => undefined);
+    setResent(true);
+  }
 
   function exitImpersonation() {
     const adminToken = window.localStorage.getItem("mew_admin_token");
@@ -247,6 +254,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </Link>
           </div>
         </header>
+
+        {me && me.emailVerified === false && (
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-amber-50 px-4 py-2 text-sm text-amber-800 lg:px-8">
+            <span>Please verify your email ({me.email}) to secure your account.</span>
+            <button
+              onClick={resendVerification}
+              disabled={resent}
+              className="rounded-md border border-amber-300 px-3 py-1 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+            >
+              {resent ? "Sent — check your inbox" : "Resend email"}
+            </button>
+          </div>
+        )}
 
         {me?.impersonating && (
           <div className="flex items-center justify-between gap-3 bg-amber-100 px-4 py-2 text-sm text-amber-900 lg:px-8">

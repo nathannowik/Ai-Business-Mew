@@ -1,8 +1,10 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { prisma } from "../db.js";
+import { env } from "../env.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { hashPassword } from "../auth/password.js";
+import { emailLayout, sendSystemEmail } from "../email/service.js";
 
 /** Only owners/admins may manage team members. */
 async function requireManager(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -52,6 +54,17 @@ export async function teamRoutes(app: FastifyInstance): Promise<void> {
         passwordHash: await hashPassword(parsed.data.password),
       },
     });
+    // Email the new member their sign-in details (logged in simulation mode).
+    await sendSystemEmail(
+      user.email,
+      "You've been invited to Mew AI",
+      emailLayout(
+        `You're on the team, ${user.name}`,
+        `You've been added to a Mew AI workspace. Sign in with this email and the temporary password you were given, then change it from your account.`,
+        { label: "Sign in", url: `${env.appBaseUrl}/login` },
+      ),
+    );
+
     return reply.code(201).send({ id: user.id, email: user.email, name: user.name, role: user.role, createdAt: user.createdAt });
   });
 

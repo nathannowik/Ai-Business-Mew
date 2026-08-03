@@ -183,6 +183,18 @@ and point your Twilio number's Voice webhook at
   roles (owner/admin/member).
 - **CSV export** — leads and appointments download as CSV.
 
+## Accounts & onboarding
+
+- **Email verification** on signup, with a dashboard banner + resend until done
+  (`REQUIRE_EMAIL_VERIFICATION=1` to enforce it at login).
+- **Password reset** — forgot/reset pages backed by hashed, 1-hour, single-use
+  tokens.
+- **Team invites** email the new member their sign-in link.
+- **Onboarding checklist** on the dashboard, computed from real state (plan,
+  service config, knowledge base, connected tools, team) — disappears once done.
+- Transactional email goes through **Resend** (`RESEND_API_KEY`); without it,
+  emails are logged so local dev still works.
+
 ## Production hardening
 
 - **Twilio webhook signature verification** on all voice/SMS webhooks (uses the
