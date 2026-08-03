@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import type { CallTurn, ReceptionistConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
 import { logActivity } from "../../activity/service.js";
+import { googleCreateEvent } from "../scheduling/googleCalendar.js";
 
 /** Prisma's Json columns want an index-signature type; our typed shapes are safe to cast. */
 function asJson(value: unknown): Prisma.InputJsonValue {
@@ -100,6 +101,12 @@ export async function bookAppointment(input: BookAppointmentInput) {
     `Appointment booked: ${input.customerName}`,
     appt.startsAt.toLocaleString(),
   );
+  await googleCreateEvent(input.organizationId, {
+    summary: `Appointment: ${input.customerName}`,
+    start: appt.startsAt,
+    durationMinutes: appt.durationMinutes,
+    description: appt.notes ?? undefined,
+  });
   return appt;
 }
 

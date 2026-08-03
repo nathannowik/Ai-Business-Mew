@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { BookingSlot, SchedulingConfig } from "@mew/shared";
 import { prisma } from "../../db.js";
+import { googleIsFree } from "./googleCalendar.js";
 
 const DEFAULT_CONFIG: SchedulingConfig = {
   slotMinutes: 30,
@@ -58,11 +59,16 @@ export async function isSlotAvailable(
   const nearby = await prisma.appointment.findMany({
     where: { organizationId, startsAt: { gte: dayStart, lte: dayEnd } },
   });
-  return !nearby.some((a) => {
+  const localFree = !nearby.some((a) => {
     const aStart = a.startsAt.getTime();
     const aEnd = aStart + a.durationMinutes * 60000;
     return aStart < end.getTime() && aEnd > start.getTime();
   });
+  if (!localFree) return false;
+
+  // Also respect the org's Google Calendar if connected (null = unknown → allow).
+  const googleFree = await googleIsFree(organizationId, start, end);
+  return googleFree !== false;
 }
 
 function parseHM(hm: string): { h: number; m: number } {

@@ -53,6 +53,7 @@ const NAV: NavGroup[] = [
       { href: "/dashboard/integrations", label: "Integrations", icon: "plug" },
       { href: "/dashboard/team", label: "Team", icon: "users" },
       { href: "/dashboard/billing", label: "Billing & Plans", icon: "card" },
+      { href: "/dashboard/account", label: "Account", icon: "cog" },
       { href: "/dashboard/agency", label: "Agency", icon: "building", adminOnly: true },
     ],
   },

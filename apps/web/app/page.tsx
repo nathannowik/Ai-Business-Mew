@@ -77,7 +77,11 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-slate-200 py-8 text-center text-sm text-slate-400">
-        © {new Date().getFullYear()} Mew AI
+        <div className="flex items-center justify-center gap-4">
+          <Link href="/terms" className="hover:text-slate-600">Terms</Link>
+          <Link href="/privacy" className="hover:text-slate-600">Privacy</Link>
+        </div>
+        <p className="mt-2">© {new Date().getFullYear()} Mew AI</p>
       </footer>
     </main>
   );

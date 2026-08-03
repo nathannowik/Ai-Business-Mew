@@ -18,7 +18,8 @@ export type IconName =
   | "plug"
   | "users"
   | "card"
-  | "building";
+  | "building"
+  | "cog";
 
 const PATHS: Record<IconName, ReactNode> = {
   home: <path d="M3 10.5 12 4l9 6.5M5 9.5V20h14V9.5" />,
@@ -56,6 +57,12 @@ const PATHS: Record<IconName, ReactNode> = {
   ),
   card: <path d="M3 6h18v12H3V6Zm0 4h18M6 15h4" />,
   building: <path d="M4 21V4h10v17M14 9h6v12M7 8h2m-2 4h2m-2 4h2" />,
+  cog: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5" />
+    </>
+  ),
 };
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {

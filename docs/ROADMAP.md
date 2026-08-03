@@ -67,10 +67,16 @@ These need no new telephony and ship fast:
 - [x] Onboarding checklist — computed from real state (plan, config, knowledge,
       integrations, team), shown on the dashboard until complete
 
+## Client-readiness (done, cont.)
+- [x] Legal pages (Terms, Privacy) — templates, flagged for legal review
+- [x] Account data export (JSON, secrets excluded) + owner-only workspace deletion
+- [x] Google Calendar integration — freebusy availability check + event creation
+      on booking (best-effort; activates when a valid token is connected)
+
 ## Client-readiness (next)
-- [ ] Real Google Calendar availability (wire the stubbed API call)
-- [ ] Legal pages (Terms, Privacy) + account data export / deletion
-- [ ] Error monitoring (Sentry) + automated DB backups
+- [ ] Error monitoring (Sentry) + automated DB backups (mostly ops config)
+- [ ] Google OAuth flow for Calendar/Business (so clients connect with a click
+      instead of pasting a token)
 
 ## Platform features (done)
 - [x] Dashboard home — KPIs, upcoming appointments, recent activity

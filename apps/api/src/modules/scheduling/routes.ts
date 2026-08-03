@@ -13,6 +13,7 @@ import {
   isSlotAvailable,
   saveSchedulingConfig,
 } from "./service.js";
+import { googleCreateEvent } from "./googleCalendar.js";
 
 /**
  * Appointment scheduling actions: reschedule/edit, and send confirmations and
@@ -94,6 +95,12 @@ export async function schedulingRoutes(app: FastifyInstance): Promise<void> {
         },
       });
       await logActivity(orgId, "appointment", `Self-booked: ${appt.customerName}`, startsAt.toLocaleString());
+      await googleCreateEvent(orgId, {
+        summary: `Appointment: ${appt.customerName}`,
+        start: startsAt,
+        durationMinutes: config.slotMinutes,
+        description: appt.notes ?? undefined,
+      });
 
       // Confirmation to the customer, if we can reach them.
       if (appt.customerPhone) {

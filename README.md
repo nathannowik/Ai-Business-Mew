@@ -194,6 +194,12 @@ and point your Twilio number's Voice webhook at
   service config, knowledge base, connected tools, team) — disappears once done.
 - Transactional email goes through **Resend** (`RESEND_API_KEY`); without it,
   emails are logged so local dev still works.
+- **Data export & deletion** — every client can export their whole workspace as
+  JSON (secrets excluded) or permanently delete it (owner only) from
+  **Settings → Account**. Public **Terms** and **Privacy** pages are included as
+  templates (have a lawyer review before real use).
+- **Google Calendar** — when connected, bookings check real free/busy and create
+  calendar events; without it, the platform uses its own appointment data.
 
 ## Production hardening
 
