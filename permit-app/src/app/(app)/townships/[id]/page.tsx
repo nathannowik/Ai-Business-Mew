@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { PageHead, StatusBadge, Badge, LinkBtn } from '@/components/ui';
 import { TOWNSHIP_STATUS, activeRequirements, parseExtraRequirements } from '@/lib/domain';
+import { DocumentsPanel } from '@/components/DocumentsPanel';
 import { TownshipForm } from '../TownshipForm';
 import { FieldMapper } from './FieldMapper';
 import { PreviewControl } from './PreviewControl';
@@ -13,7 +14,7 @@ export const dynamic = 'force-dynamic';
 export default async function TownshipDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [t, areas, employeesRaw] = await Promise.all([
-    prisma.township.findUnique({ where: { id }, include: { areaGroup: true } }),
+    prisma.township.findUnique({ where: { id }, include: { areaGroup: true, documents: { orderBy: { createdAt: 'desc' } } } }),
     prisma.areaGroup.findMany({ orderBy: { name: 'asc' } }),
     prisma.employee.findMany({ where: { active: true }, orderBy: { lastName: 'asc' }, select: { id: true, firstName: true, lastName: true, areaGroupId: true } }),
   ]);
@@ -137,6 +138,16 @@ export default async function TownshipDetail({ params }: { params: Promise<{ id:
               </>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 16 }}>
+        <div className="card-head"><div><h3>Documents</h3><div className="sub">Blank forms, instructions, sample permits, or anything else for this township.</div></div></div>
+        <div className="card-pad">
+          <DocumentsPanel
+            townshipId={t.id}
+            docs={t.documents.map((d) => ({ id: d.id, name: d.name, category: d.category, storageKey: d.storageKey, mimeType: d.mimeType, size: d.size, createdAt: d.createdAt.toISOString() }))}
+          />
         </div>
       </div>
 

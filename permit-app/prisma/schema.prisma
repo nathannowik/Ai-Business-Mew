@@ -81,8 +81,25 @@ model Employee {
   areaGroupId          String?
   areaGroup            AreaGroup? @relation(fields: [areaGroupId], references: [id], onDelete: SetNull)
   applications         PermitApplication[]
+  documents            Document[]
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+}
+
+/// A stored file attached to an employee or a township (insurance certs, bond docs,
+/// background-check PDFs, photos, etc.). Exactly one owner is set.
+model Document {
+  id          String    @id @default(cuid())
+  name        String
+  category    String    @default("other")
+  storageKey  String
+  mimeType    String?
+  size        Int?
+  employeeId  String?
+  employee    Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  townshipId  String?
+  township    Township? @relation(fields: [townshipId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
 }
 
 /// A township we solicit in. Holds its unique requirements, clerk contact info, and
@@ -141,6 +158,7 @@ model Township {
 
   applications     PermitApplication[]
   emailDrafts      EmailDraft[]
+  documents        Document[]
 
   @@unique([name, state, county])
 }

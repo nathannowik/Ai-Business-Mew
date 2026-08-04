@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { PageHead, Badge, Avatar, Empty } from '@/components/ui';
 import { ImportDrawer } from '@/components/ImportDrawer';
 import { COMPLIANCE_STATUS } from '@/lib/domain';
+import { DocumentsDrawer } from '@/components/DocumentsDrawer';
 import { EmployeeForm } from './EmployeeForm';
 import { deleteEmployee, importEmployeesCsv } from './actions';
 
@@ -14,7 +15,7 @@ Casey,Nguyen,casey@example.com,(616) 555-0101,88 Birch Ln,Wyoming,MI,49509,1992-
 export default async function EmployeesPage({ searchParams }: { searchParams: Promise<{ imported?: string; skipped?: string }> }) {
   const { imported, skipped } = await searchParams;
   const [employees, areas] = await Promise.all([
-    prisma.employee.findMany({ include: { areaGroup: true }, orderBy: [{ active: 'desc' }, { lastName: 'asc' }] }),
+    prisma.employee.findMany({ include: { areaGroup: true, documents: { orderBy: { createdAt: 'desc' } } }, orderBy: [{ active: 'desc' }, { lastName: 'asc' }] }),
     prisma.areaGroup.findMany({ orderBy: { name: 'asc' } }),
   ]);
 
@@ -77,6 +78,11 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
                     <td><Comp value={e.fingerprintStatus} /></td>
                     <td className="right">
                       <div className="row" style={{ justifyContent: 'flex-end', gap: 6 }}>
+                        <DocumentsDrawer
+                          employeeId={e.id}
+                          name={`${e.firstName} ${e.lastName}`}
+                          docs={e.documents.map((d) => ({ id: d.id, name: d.name, category: d.category, storageKey: d.storageKey, mimeType: d.mimeType, size: d.size, createdAt: d.createdAt.toISOString() }))}
+                        />
                         <EmployeeForm areas={areas} employee={e} triggerLabel="Edit" triggerClass="btn sm" />
                         <form action={deleteEmployee}>
                           <input type="hidden" name="id" value={e.id} />
