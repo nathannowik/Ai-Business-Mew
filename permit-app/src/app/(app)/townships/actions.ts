@@ -1,11 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { saveFile, deleteFile } from '@/lib/storage';
 import { detectPdfFields } from '@/lib/pdf';
 import { guessToken, REQUIREMENTS } from '@/lib/domain';
 import { str, bool, num, int } from '@/lib/form';
+import { parseCsv, field, truthy, TOWNSHIP_COLUMNS } from '@/lib/csv';
 
 function reqFlags(fd: FormData): Record<string, boolean> {
   const out: Record<string, boolean> = {};
@@ -57,6 +59,76 @@ export async function saveTownship(formData: FormData) {
   revalidatePath('/townships');
   revalidatePath('/');
   return townshipId;
+}
+
+/** Bulk-import townships from pasted CSV. Resolves/creates area groups by name. */
+export async function importTownshipsCsv(formData: FormData) {
+  const csv = str(formData, 'csv');
+  if (!csv) redirect('/townships?imported=0&skipped=0');
+  const { objects } = parseCsv(csv);
+
+  const areas = await prisma.areaGroup.findMany();
+  const areaByName = new Map(areas.map((a) => [a.name.trim().toLowerCase(), a.id]));
+
+  let imported = 0;
+  let skipped = 0;
+  for (const row of objects) {
+    const name = field(row, TOWNSHIP_COLUMNS.name);
+    if (!name) { skipped++; continue; }
+
+    const areaName = field(row, TOWNSHIP_COLUMNS.area);
+    let areaGroupId: string | null = null;
+    if (areaName) {
+      const key = areaName.trim().toLowerCase();
+      areaGroupId = areaByName.get(key) ?? null;
+      if (!areaGroupId) {
+        const created = await prisma.areaGroup.create({ data: { name: areaName.trim() } });
+        areaByName.set(key, created.id);
+        areaGroupId = created.id;
+      }
+    }
+
+    const feeStr = field(row, TOWNSHIP_COLUMNS.permitFee);
+    const fee = feeStr ? Number(feeStr.replace(/[^0-9.]/g, '')) : null;
+    const procStr = field(row, TOWNSHIP_COLUMNS.processingDays);
+    const durStr = field(row, TOWNSHIP_COLUMNS.permitDurationDays);
+    const state = field(row, TOWNSHIP_COLUMNS.state) || null;
+    const county = field(row, TOWNSHIP_COLUMNS.county) || null;
+
+    const data = {
+      name, state, county, areaGroupId,
+      clerkOfficeName: field(row, TOWNSHIP_COLUMNS.clerkOfficeName) || null,
+      clerkName: field(row, TOWNSHIP_COLUMNS.clerkName) || null,
+      clerkEmail: field(row, TOWNSHIP_COLUMNS.clerkEmail) || null,
+      clerkPhone: field(row, TOWNSHIP_COLUMNS.clerkPhone) || null,
+      officeAddress: field(row, TOWNSHIP_COLUMNS.officeAddress) || null,
+      officeCity: field(row, TOWNSHIP_COLUMNS.officeCity) || null,
+      officeZip: field(row, TOWNSHIP_COLUMNS.officeZip) || null,
+      website: field(row, TOWNSHIP_COLUMNS.website) || null,
+      permitFee: fee != null && Number.isFinite(fee) ? fee : null,
+      processingDays: procStr ? parseInt(procStr, 10) || null : null,
+      permitDurationDays: durStr ? parseInt(durStr, 10) || null : null,
+      reqFee: truthy(field(row, TOWNSHIP_COLUMNS.reqFee)),
+      reqFingerprints: truthy(field(row, TOWNSHIP_COLUMNS.reqFingerprints)),
+      reqBackgroundCheck: truthy(field(row, TOWNSHIP_COLUMNS.reqBackgroundCheck)),
+      reqPhoto2x2: truthy(field(row, TOWNSHIP_COLUMNS.reqPhoto2x2)),
+      reqInsurance: truthy(field(row, TOWNSHIP_COLUMNS.reqInsurance)),
+      reqBond: truthy(field(row, TOWNSHIP_COLUMNS.reqBond)),
+      reqDriverLicense: truthy(field(row, TOWNSHIP_COLUMNS.reqDriverLicense)),
+      reqVehicleInfo: truthy(field(row, TOWNSHIP_COLUMNS.reqVehicleInfo)),
+      reqInPerson: truthy(field(row, TOWNSHIP_COLUMNS.reqInPerson)),
+      reqNotarized: truthy(field(row, TOWNSHIP_COLUMNS.reqNotarized)),
+    };
+
+    const existing = await prisma.township.findFirst({ where: { name, state, county } });
+    if (existing) await prisma.township.update({ where: { id: existing.id }, data });
+    else await prisma.township.create({ data });
+    imported++;
+  }
+
+  revalidatePath('/townships');
+  revalidatePath('/');
+  redirect(`/townships?imported=${imported}&skipped=${skipped}`);
 }
 
 export async function deleteTownship(formData: FormData) {

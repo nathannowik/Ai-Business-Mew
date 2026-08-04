@@ -1,12 +1,18 @@
 import { prisma } from '@/lib/db';
 import { PageHead, Badge, Avatar, Empty } from '@/components/ui';
+import { ImportDrawer } from '@/components/ImportDrawer';
 import { COMPLIANCE_STATUS } from '@/lib/domain';
 import { EmployeeForm } from './EmployeeForm';
-import { deleteEmployee } from './actions';
+import { deleteEmployee, importEmployeesCsv } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EmployeesPage() {
+const EMP_TEMPLATE = `First Name,Last Name,Email,Phone,Address,City,State,Zip,DOB,Driver License,Area
+Jordan,Blake,jordan@example.com,(616) 555-0100,12 Oak St,Grand Rapids,MI,49503,1995-04-12,B123-4567-8901,Area 3
+Casey,Nguyen,casey@example.com,(616) 555-0101,88 Birch Ln,Wyoming,MI,49509,1992-09-01,N987-6543-2109,Area 2`;
+
+export default async function EmployeesPage({ searchParams }: { searchParams: Promise<{ imported?: string; skipped?: string }> }) {
+  const { imported, skipped } = await searchParams;
   const [employees, areas] = await Promise.all([
     prisma.employee.findMany({ include: { areaGroup: true }, orderBy: [{ active: 'desc' }, { lastName: 'asc' }] }),
     prisma.areaGroup.findMany({ orderBy: { name: 'asc' } }),
@@ -17,8 +23,25 @@ export default async function EmployeesPage() {
       <PageHead
         title="Employees"
         subtitle="Your field team. Each person is assigned to an area group and tracked for photo, background check, and fingerprint compliance."
-        action={<EmployeeForm areas={areas} />}
+        action={
+          <>
+            <ImportDrawer
+              action={importEmployeesCsv}
+              title="Import employees"
+              description="Bulk-add your roster from a spreadsheet export."
+              template={EMP_TEMPLATE}
+              templateName="employees-template.csv"
+            />
+            <EmployeeForm areas={areas} />
+          </>
+        }
       />
+      {imported != null && (
+        <div className="notice success" style={{ marginBottom: 16 }}>
+          <span>✓</span>
+          <div>Imported {imported} employee{imported === '1' ? '' : 's'}{Number(skipped) > 0 ? ` · skipped ${skipped} row${skipped === '1' ? '' : 's'} (missing name)` : ''}.</div>
+        </div>
+      )}
 
       <div className="card">
         {employees.length === 0 ? (

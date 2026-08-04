@@ -1,12 +1,19 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import { PageHead, StatusBadge, Empty, Badge } from '@/components/ui';
+import { ImportDrawer } from '@/components/ImportDrawer';
 import { TOWNSHIP_STATUS, activeRequirements } from '@/lib/domain';
 import { TownshipForm } from './TownshipForm';
+import { importTownshipsCsv } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function TownshipsPage() {
+const TWP_TEMPLATE = `Name,County,State,Area,Clerk Name,Clerk Email,Clerk Phone,Fee,Duration,Fingerprints,Background Check,Photo,Insurance,Bond,Notarized
+Plainfield Township,Kent,MI,Area 3,Pat Rivers,clerk@plainfield.example,(616) 555-0199,45,180,yes,yes,yes,no,no,yes
+Wyoming,Kent,MI,Area 2,Sam Cole,clerk@wyoming.example,(616) 555-0200,30,365,no,yes,no,no,no,no`;
+
+export default async function TownshipsPage({ searchParams }: { searchParams: Promise<{ imported?: string; skipped?: string }> }) {
+  const { imported, skipped } = await searchParams;
   const [townships, areas] = await Promise.all([
     prisma.township.findMany({ include: { areaGroup: true }, orderBy: [{ name: 'asc' }] }),
     prisma.areaGroup.findMany({ orderBy: { name: 'asc' } }),
@@ -17,8 +24,25 @@ export default async function TownshipsPage() {
       <PageHead
         title="Townships"
         subtitle="Every township is different. Track each one's requirements, clerk contact, and official permit PDF so applications fill themselves."
-        action={<TownshipForm areas={areas} />}
+        action={
+          <>
+            <ImportDrawer
+              action={importTownshipsCsv}
+              title="Import townships"
+              description="Bulk-add townships and their requirements from a spreadsheet."
+              template={TWP_TEMPLATE}
+              templateName="townships-template.csv"
+            />
+            <TownshipForm areas={areas} />
+          </>
+        }
       />
+      {imported != null && (
+        <div className="notice success" style={{ marginBottom: 16 }}>
+          <span>✓</span>
+          <div>Imported {imported} township{imported === '1' ? '' : 's'}{Number(skipped) > 0 ? ` · skipped ${skipped} row${skipped === '1' ? '' : 's'} (missing name)` : ''}.</div>
+        </div>
+      )}
 
       <div className="card">
         {townships.length === 0 ? (
