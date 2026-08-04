@@ -65,12 +65,43 @@ npm run setup      # creates the SQLite DB and loads realistic sample data
 npm run dev        # http://localhost:3000
 ```
 
+Sign in with the password in `.env` (`APP_PASSWORD`, default `permitpilot`).
+
 For a production build:
 
 ```bash
 npm run build
 npm start
 ```
+
+## Sign-in & security
+
+The whole app sits behind a shared password (single-tenant MVP — no per-user accounts
+yet). Two environment variables control it:
+
+| Variable       | Purpose                                                        | Default        |
+| -------------- | ------------------------------------------------------------- | -------------- |
+| `APP_PASSWORD` | The password you type to sign in.                             | `permitpilot`  |
+| `AUTH_SECRET`  | Signs the session cookie so it can't be forged. Set a long random string in production. | derived (dev only) |
+
+Edge middleware protects every route — including `/files/*`, which serves permit PDFs that
+contain personal data. **Change both values before exposing the app publicly.**
+
+## Deploy with Docker
+
+```bash
+cd permit-app
+docker compose up --build          # http://localhost:3000
+# one-time: load sample data into the fresh volume DB
+docker compose exec permitpilot npm run db:seed
+```
+
+The SQLite database persists on the `permitpilot-db` volume and uploaded/generated files
+on `permitpilot-storage`, so both survive restarts. Set real `APP_PASSWORD` and
+`AUTH_SECRET` values in `docker-compose.yml` (or your host's env) before going live.
+
+Any platform that builds a Dockerfile (Render, Fly.io, Railway, a VPS) can run the same
+image — just attach a persistent disk for `/data` and `/app/storage`.
 
 ### Useful scripts
 

@@ -24,34 +24,40 @@ export function GenerateWizard({
   const areaTownships = useMemo(() => townships.filter((t) => t.areaGroupId === areaId && t.status !== 'inactive'), [townships, areaId]);
   const areaEmployees = useMemo(() => employees.filter((e) => e.areaGroupId === areaId), [employees, areaId]);
 
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
-
-  // Initialize selection whenever the area's township set changes. Default: all active
-  // townships selected — unless a specific township was preset and lives in this area.
-  const selKey = areaTownships.map((t) => t.id).join(',');
-  const [initFor, setInitFor] = useState('');
-  if (initFor !== selKey) {
+  // --- Township selection: default all active (or a preset one) ---
+  const [selTwp, setSelTwp] = useState<Record<string, boolean>>({});
+  const twpKey = areaTownships.map((t) => t.id).join(',');
+  const [twpInitFor, setTwpInitFor] = useState('');
+  if (twpInitFor !== twpKey) {
     const presetInArea = !!presetTownship && areaTownships.some((t) => t.id === presetTownship);
     const next: Record<string, boolean> = {};
     for (const t of areaTownships) next[t.id] = presetInArea ? t.id === presetTownship : true;
-    setSelected(next);
-    setInitFor(selKey);
+    setSelTwp(next);
+    setTwpInitFor(twpKey);
   }
 
-  const chosen = areaTownships.filter((t) => selected[t.id]);
-  const permitCount = chosen.length * areaEmployees.length;
-
-  function toggle(id: string) {
-    setSelected((s) => ({ ...s, [id]: !s[id] }));
-  }
-  function setAll(on: boolean) {
+  // --- Employee selection: default everyone in the area ---
+  const [selEmp, setSelEmp] = useState<Record<string, boolean>>({});
+  const empKey = areaEmployees.map((e) => e.id).join(',');
+  const [empInitFor, setEmpInitFor] = useState('');
+  if (empInitFor !== empKey) {
     const next: Record<string, boolean> = {};
-    for (const t of areaTownships) next[t.id] = on;
-    setSelected(next);
+    for (const e of areaEmployees) next[e.id] = true;
+    setSelEmp(next);
+    setEmpInitFor(empKey);
   }
 
-  // Aggregate missing requirements per employee across the chosen townships.
-  const readiness = areaEmployees.map((e) => {
+  const chosen = areaTownships.filter((t) => selTwp[t.id]);
+  const chosenEmployees = areaEmployees.filter((e) => selEmp[e.id]);
+  const permitCount = chosen.length * chosenEmployees.length;
+
+  const toggleTwp = (id: string) => setSelTwp((s) => ({ ...s, [id]: !s[id] }));
+  const setAllTwp = (on: boolean) => setSelTwp(Object.fromEntries(areaTownships.map((t) => [t.id, on])));
+  const toggleEmp = (id: string) => setSelEmp((s) => ({ ...s, [id]: !s[id] }));
+  const setAllEmp = (on: boolean) => setSelEmp(Object.fromEntries(areaEmployees.map((e) => [e.id, on])));
+
+  // Aggregate missing requirements per chosen employee across the chosen townships.
+  const readiness = chosenEmployees.map((e) => {
     const missing = new Set<string>();
     for (const t of chosen) {
       if (t.needsPhoto && e.photoStatus !== 'complete') missing.add('2×2 photo');
@@ -67,16 +73,11 @@ export function GenerateWizard({
     <div className="grid grid-2" style={{ alignItems: 'flex-start' }}>
       <div className="stack" style={{ gap: 16 }}>
         <div className="card">
-          <div className="card-head"><div><h3>1 · Choose an area</h3><div className="sub">Permits generate for everyone in this area.</div></div></div>
+          <div className="card-head"><div><h3>1 · Choose an area</h3><div className="sub">Everyone selected below comes from this area.</div></div></div>
           <div className="card-pad">
             <div className="chips">
               {areas.map((a) => (
-                <button
-                  key={a.id}
-                  type="button"
-                  className={`btn ${areaId === a.id ? 'primary' : ''}`}
-                  onClick={() => setAreaId(a.id)}
-                >
+                <button key={a.id} type="button" className={`btn ${areaId === a.id ? 'primary' : ''}`} onClick={() => setAreaId(a.id)}>
                   <span style={{ width: 9, height: 9, borderRadius: 3, background: a.color ?? '#2563eb', display: 'inline-block' }} />
                   {a.name}
                 </button>
@@ -90,8 +91,8 @@ export function GenerateWizard({
           <div className="card-head">
             <div><h3>2 · Choose townships</h3><div className="sub">Which townships to apply for.</div></div>
             <div className="row" style={{ gap: 6 }}>
-              <button type="button" className="btn ghost sm" onClick={() => setAll(true)}>All</button>
-              <button type="button" className="btn ghost sm" onClick={() => setAll(false)}>None</button>
+              <button type="button" className="btn ghost sm" onClick={() => setAllTwp(true)}>All</button>
+              <button type="button" className="btn ghost sm" onClick={() => setAllTwp(false)}>None</button>
             </div>
           </div>
           <div className="card-pad">
@@ -102,7 +103,7 @@ export function GenerateWizard({
                 {areaTownships.map((t) => (
                   <label key={t.id} className="check" style={{ justifyContent: 'space-between' }}>
                     <span className="row" style={{ gap: 10 }}>
-                      <input type="checkbox" checked={!!selected[t.id]} onChange={() => toggle(t.id)} />
+                      <input type="checkbox" checked={!!selTwp[t.id]} onChange={() => toggleTwp(t.id)} />
                       <span>
                         <span className="cell-strong">{t.name}</span>
                         <span className="cell-sub"> · {t.reqShort.length} requirement{t.reqShort.length === 1 ? '' : 's'}</span>
@@ -115,14 +116,38 @@ export function GenerateWizard({
             )}
           </div>
         </div>
+
+        <div className="card">
+          <div className="card-head">
+            <div><h3>3 · Choose employees</h3><div className="sub">Defaults to everyone in the area.</div></div>
+            <div className="row" style={{ gap: 6 }}>
+              <button type="button" className="btn ghost sm" onClick={() => setAllEmp(true)}>All</button>
+              <button type="button" className="btn ghost sm" onClick={() => setAllEmp(false)}>None</button>
+            </div>
+          </div>
+          <div className="card-pad">
+            {areaEmployees.length === 0 ? (
+              <div className="muted">No active employees in this area. Add or assign employees first.</div>
+            ) : (
+              <div className="check-grid">
+                {areaEmployees.map((e) => (
+                  <label key={e.id} className="check">
+                    <input type="checkbox" checked={!!selEmp[e.id]} onChange={() => toggleEmp(e.id)} />
+                    <span className="cell-strong">{e.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="card" style={{ position: 'sticky', top: 76 }}>
-        <div className="card-head"><h3>3 · Review & generate</h3></div>
+      <div className="card" style={{ position: 'sticky', top: 16 }}>
+        <div className="card-head"><h3>4 · Review & generate</h3></div>
         <div className="card-pad">
           <div className="grid grid-3" style={{ gap: 10, marginBottom: 16 }}>
             <MiniStat k="Townships" v={chosen.length} />
-            <MiniStat k="Employees" v={areaEmployees.length} />
+            <MiniStat k="Employees" v={chosenEmployees.length} />
             <MiniStat k="Permits" v={permitCount} accent />
           </div>
 
@@ -138,11 +163,11 @@ export function GenerateWizard({
               <span>⚠</span>
               <div>Some employees are missing requirements for the selected townships. Permits still generate, but flagged items must be completed before filing.</div>
             </div>
-          ) : chosen.length > 0 && (
-            <div className="notice success" style={{ marginBottom: 12 }}><span>✓</span><div>All employees are compliant for the selected townships.</div></div>
+          ) : chosen.length > 0 && chosenEmployees.length > 0 && (
+            <div className="notice success" style={{ marginBottom: 12 }}><span>✓</span><div>All selected employees are compliant for the selected townships.</div></div>
           )}
 
-          {areaEmployees.length > 0 && chosen.length > 0 && (
+          {chosenEmployees.length > 0 && chosen.length > 0 && (
             <div className="table-wrap" style={{ marginBottom: 16, maxHeight: 260, overflowY: 'auto' }}>
               <table className="tbl">
                 <thead><tr><th>Employee</th><th>Missing for selection</th></tr></thead>
@@ -161,6 +186,7 @@ export function GenerateWizard({
           <form action={generatePermits}>
             <input type="hidden" name="areaId" value={areaId} />
             {chosen.map((t) => <input key={t.id} type="hidden" name="townshipIds" value={t.id} />)}
+            {chosenEmployees.map((e) => <input key={e.id} type="hidden" name="employeeIds" value={e.id} />)}
             <button className="btn primary lg" type="submit" disabled={permitCount === 0} style={{ width: '100%' }}>
               ✦ Generate {permitCount || ''} permit{permitCount === 1 ? '' : 's'} → print batch
             </button>

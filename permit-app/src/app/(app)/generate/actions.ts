@@ -17,12 +17,21 @@ import { str, all } from '@/lib/form';
 export async function generatePermits(formData: FormData) {
   const areaId = str(formData, 'areaId');
   const townshipIds = all(formData, 'townshipIds');
+  const employeeIds = all(formData, 'employeeIds');
   if (!areaId || townshipIds.length === 0) return;
 
   const [company, area, employees, townships] = await Promise.all([
     prisma.company.findFirst(),
     prisma.areaGroup.findUnique({ where: { id: areaId } }),
-    prisma.employee.findMany({ where: { areaGroupId: areaId, active: true }, orderBy: { lastName: 'asc' } }),
+    prisma.employee.findMany({
+      where: {
+        areaGroupId: areaId,
+        active: true,
+        // If specific employees were chosen, restrict to them; otherwise everyone in the area.
+        ...(employeeIds.length ? { id: { in: employeeIds } } : {}),
+      },
+      orderBy: { lastName: 'asc' },
+    }),
     prisma.township.findMany({ where: { id: { in: townshipIds } }, orderBy: { name: 'asc' } }),
   ]);
 

@@ -5,17 +5,23 @@ import { PageHead, StatusBadge, Badge, LinkBtn } from '@/components/ui';
 import { TOWNSHIP_STATUS, activeRequirements, parseExtraRequirements } from '@/lib/domain';
 import { TownshipForm } from '../TownshipForm';
 import { FieldMapper } from './FieldMapper';
+import { PreviewControl } from './PreviewControl';
 import { uploadTownshipPdf, removeTownshipPdf, deleteTownship } from '../actions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function TownshipDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [t, areas] = await Promise.all([
+  const [t, areas, employeesRaw] = await Promise.all([
     prisma.township.findUnique({ where: { id }, include: { areaGroup: true } }),
     prisma.areaGroup.findMany({ orderBy: { name: 'asc' } }),
+    prisma.employee.findMany({ where: { active: true }, orderBy: { lastName: 'asc' }, select: { id: true, firstName: true, lastName: true, areaGroupId: true } }),
   ]);
   if (!t) notFound();
+
+  // Prefer previewing with employees from this township's area, else any active employee.
+  const areaEmps = employeesRaw.filter((e) => e.areaGroupId === t.areaGroupId);
+  const previewEmployees = (areaEmps.length ? areaEmps : employeesRaw).map((e) => ({ id: e.id, name: `${e.firstName} ${e.lastName}` }));
 
   const reqs = activeRequirements(t);
   const extras = parseExtraRequirements(t.extraRequirements);
@@ -105,15 +111,27 @@ export default async function TownshipDetail({ params }: { params: Promise<{ id:
                   <div className="field"><label>Permit form (PDF)</label><input className="input" type="file" name="pdf" accept="application/pdf" required /></div>
                   <button className="btn primary" type="submit">Upload & detect fields</button>
                 </form>
+                <hr className="sep" />
+                <div className="between">
+                  <span className="muted">See the generated packet for this township:</span>
+                  <PreviewControl townshipId={t.id} employees={previewEmployees} />
+                </div>
               </>
             ) : (
               <>
                 <div className="between" style={{ marginBottom: 16 }}>
-                  <a className="btn sm" href={`/files/${t.permitPdfPath}`} target="_blank">↗ View uploaded PDF</a>
+                  <a className="btn sm" href={`/files/${t.permitPdfPath}`} target="_blank">↗ View blank PDF</a>
                   <form action={removeTownshipPdf}>
                     <input type="hidden" name="townshipId" value={t.id} />
                     <button className="btn ghost sm" type="submit">Remove & re-upload</button>
                   </form>
+                </div>
+                <div className="notice info" style={{ marginBottom: 16 }}>
+                  <span>ℹ</span>
+                  <div>Map the fields below, then <b>preview the filled form</b> with a real employee to confirm everything lands in the right place before generating a batch.</div>
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <PreviewControl townshipId={t.id} employees={previewEmployees} />
                 </div>
                 <FieldMapper townshipId={t.id} fields={fields} mappings={mappings} />
               </>

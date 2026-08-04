@@ -1,0 +1,18 @@
+services:
+  permitpilot:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # Change these before exposing the app publicly.
+      APP_PASSWORD: "permitpilot"
+      AUTH_SECRET: "change-me-to-a-long-random-string"
+      DATABASE_URL: "file:/data/dev.db"
+    volumes:
+      - permitpilot-db:/data
+      - permitpilot-storage:/app/storage
+    restart: unless-stopped
+
+volumes:
+  permitpilot-db:
+  permitpilot-storage:

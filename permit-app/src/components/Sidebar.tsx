@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { logout } from '@/app/login/actions';
 
 const NAV: { label: string; items: { href: string; icon: string; name: string }[] }[] = [
   {
@@ -61,6 +62,12 @@ export default function Sidebar() {
         </div>
       ))}
       <div className="spacer" />
+      <form action={logout} style={{ padding: '0 8px 8px' }}>
+        <button type="submit" className="nav-item" style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
+          <span className="ico">⇥</span>
+          Sign out
+        </button>
+      </form>
       <div className="foot">Turn “I need permits for Area 3” into printed, ready-to-file forms.</div>
     </aside>
   );
