@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import { PageHead, Badge, Avatar, Empty } from '@/components/ui';
 import { ImportDrawer } from '@/components/ImportDrawer';
@@ -68,7 +69,7 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
                       <div className="row">
                         <Avatar first={e.firstName} last={e.lastName} />
                         <div>
-                          <div className="cell-strong">{e.firstName} {e.lastName} {!e.active && <span className="pill" style={{ marginLeft: 6 }}>inactive</span>}</div>
+                          <div className="cell-strong"><Link className="rowlink" href={`/employees/${e.id}`}>{e.firstName} {e.lastName}</Link> {!e.active && <span className="pill" style={{ marginLeft: 6 }}>inactive</span>}</div>
                           <div className="cell-sub">{[e.email, e.phone].filter(Boolean).join(' · ') || '—'}</div>
                         </div>
                       </div>

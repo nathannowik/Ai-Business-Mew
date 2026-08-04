@@ -38,7 +38,7 @@ export default async function AreaDetail({ params }: { params: Promise<{ id: str
                 <tbody>
                   {area.employees.map((e) => (
                     <tr key={e.id}>
-                      <td><div className="row"><Avatar first={e.firstName} last={e.lastName} /><span className="cell-strong">{e.firstName} {e.lastName}</span></div></td>
+                      <td><div className="row"><Avatar first={e.firstName} last={e.lastName} /><Link className="rowlink" href={`/employees/${e.id}`}>{e.firstName} {e.lastName}</Link></div></td>
                       <td><Badge tone={(COMPLIANCE_STATUS[e.photoStatus] ?? COMPLIANCE_STATUS.missing).tone}>{(COMPLIANCE_STATUS[e.photoStatus] ?? COMPLIANCE_STATUS.missing).label}</Badge></td>
                       <td><Badge tone={(COMPLIANCE_STATUS[e.backgroundCheckStatus] ?? COMPLIANCE_STATUS.missing).tone}>{(COMPLIANCE_STATUS[e.backgroundCheckStatus] ?? COMPLIANCE_STATUS.missing).label}</Badge></td>
                       <td><Badge tone={(COMPLIANCE_STATUS[e.fingerprintStatus] ?? COMPLIANCE_STATUS.missing).tone}>{(COMPLIANCE_STATUS[e.fingerprintStatus] ?? COMPLIANCE_STATUS.missing).label}</Badge></td>

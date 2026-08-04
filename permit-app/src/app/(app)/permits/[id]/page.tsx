@@ -105,7 +105,7 @@ export default async function PermitDetail({ params }: { params: Promise<{ id: s
             <div className="card-head"><h3>At a glance</h3></div>
             <div className="card-pad">
               <div className="kvs">
-                <div className="k">Employee</div><div><Link className="link" href="/employees">{app.employee.firstName} {app.employee.lastName}</Link></div>
+                <div className="k">Employee</div><div><Link className="link" href={`/employees/${app.employeeId}`}>{app.employee.firstName} {app.employee.lastName}</Link></div>
                 <div className="k">Township</div><div><Link className="link" href={`/townships/${app.townshipId}`}>{app.township.name}</Link></div>
                 <div className="k">Permit #</div><div>{app.permitNumber ?? '—'}</div>
                 <div className="k">Filled out</div><div>{fmt(app.createdAt)}</div>
