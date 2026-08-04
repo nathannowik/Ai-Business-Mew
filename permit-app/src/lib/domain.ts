@@ -1,7 +1,7 @@
 // Central domain definitions shared across the app: township requirements, the data
 // tokens available for PDF field mapping, and helpers to resolve them.
 
-import type { Company, Employee, Township } from '@prisma/client';
+import type { Company, Employee, Township, PermitApplication } from '@prisma/client';
 
 // ---------------------------------------------------------------------------
 // Township requirement flags
@@ -236,3 +236,57 @@ export const TOWNSHIP_STATUS: Record<string, { label: string; tone: string }> = 
   needs_info: { label: 'Needs info', tone: 'amber' },
   inactive: { label: 'Inactive', tone: 'gray' },
 };
+
+// ---------------------------------------------------------------------------
+// Permit lifecycle
+// ---------------------------------------------------------------------------
+// The ordered stages a permit moves through, used for the timeline on the detail page.
+export const LIFECYCLE_STAGES: { key: string; label: string; desc: string }[] = [
+  { key: 'generated', label: 'Filled out', desc: 'Form auto-filled and added to a print batch' },
+  { key: 'submitted', label: 'Submitted', desc: 'Turned in to the township clerk' },
+  { key: 'approved', label: 'Approved', desc: 'Permit granted by the township' },
+];
+
+const DAY_MS = 86400000;
+
+/** Whole days from now until a date (negative if in the past). */
+export function daysUntil(date: Date | null | undefined): number | null {
+  if (!date) return null;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(date);
+  end.setHours(0, 0, 0, 0);
+  return Math.round((end.getTime() - start.getTime()) / DAY_MS);
+}
+
+/**
+ * The status to actually show: an approved permit past its expiry reads as "expired"
+ * even if the stored status hasn't been swept yet.
+ */
+export function effectiveStatus(app: Pick<PermitApplication, 'status' | 'expiresAt'>): string {
+  if (app.status === 'approved' && app.expiresAt && new Date(app.expiresAt).getTime() < Date.now()) {
+    return 'expired';
+  }
+  return app.status;
+}
+
+export type ExpiryInfo = {
+  daysRemaining: number | null;
+  expired: boolean;
+  expiringSoon: boolean; // approved and within 30 days of expiry
+  label: string | null;
+};
+
+export function expiryInfo(app: Pick<PermitApplication, 'status' | 'expiresAt'>, soonDays = 30): ExpiryInfo {
+  if (!app.expiresAt) return { daysRemaining: null, expired: false, expiringSoon: false, label: null };
+  const d = daysUntil(app.expiresAt);
+  const expired = d !== null && d < 0;
+  const expiringSoon = app.status === 'approved' && d !== null && d >= 0 && d <= soonDays;
+  let label: string | null = null;
+  if (d !== null) {
+    if (expired) label = `Expired ${Math.abs(d)}d ago`;
+    else if (d === 0) label = 'Expires today';
+    else label = `${d}d left`;
+  }
+  return { daysRemaining: d, expired, expiringSoon, label };
+}

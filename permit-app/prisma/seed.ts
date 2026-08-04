@@ -1,6 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import { generatePacket, mergePdfs } from '../src/lib/pdf';
+import { saveFile } from '../src/lib/storage';
 
 const prisma = new PrismaClient();
+const daysAgo = (n: number) => new Date(Date.now() - n * 86400000);
+const daysAhead = (n: number) => new Date(Date.now() + n * 86400000);
 
 async function main() {
   // ---- Company profile (shared fields for every permit) ----
@@ -149,6 +153,54 @@ async function main() {
         { townshipName: 'Wyoming', state: 'MI', county: 'Kent', requestedBy: 'Jenna Whitmore', priority: 'normal', status: 'new', areaGroupId: areas['Area 2'] },
       ],
     });
+  }
+
+  // ---- Sample permits with a mix of lifecycle states (so tracking + renewals show) ----
+  const appCount = await prisma.permitApplication.count();
+  if (appCount === 0) {
+    const company = await prisma.company.findFirst();
+    const area3 = await prisma.areaGroup.findFirst({ where: { name: 'Area 3' } });
+    if (area3) {
+      const emps = await prisma.employee.findMany({ where: { areaGroupId: area3.id }, orderBy: { lastName: 'asc' } });
+      const twps = await prisma.township.findMany({ where: { areaGroupId: area3.id }, orderBy: { name: 'asc' } });
+      // Lifecycle presets applied to the first few (employee x township) pairs.
+      const presets = [
+        { status: 'approved', permitNumber: 'SP-2026-0112', approvedAt: daysAgo(160), expiresAt: daysAhead(20) },   // expiring soon
+        { status: 'approved', permitNumber: 'SP-2025-0339', approvedAt: daysAgo(220), expiresAt: daysAgo(12) },      // expired
+        { status: 'submitted', submittedAt: daysAgo(6) },                                                            // waiting on clerk
+        { status: 'approved', permitNumber: 'SP-2026-0155', approvedAt: daysAgo(30), expiresAt: daysAhead(150) },    // healthy
+        { status: 'generated' },                                                                                     // just filled out
+      ];
+      const pairs: { emp: (typeof emps)[number]; twp: (typeof twps)[number]; preset: (typeof presets)[number] }[] = [];
+      let i = 0;
+      for (const twp of twps) {
+        for (const emp of emps) {
+          if (i >= presets.length) break;
+          pairs.push({ emp, twp, preset: presets[i] });
+          i++;
+        }
+        if (i >= presets.length) break;
+      }
+
+      const pdfs: Uint8Array[] = [];
+      for (const p of pairs) pdfs.push(await generatePacket(company, p.emp, p.twp));
+      const combined = await mergePdfs(pdfs);
+      const combinedKey = await saveFile('batches', '.pdf', Buffer.from(combined));
+
+      const batch = await prisma.permitBatch.create({
+        data: { label: `Area 3 · sample batch · ${pairs.length} permits`, areaGroupId: area3.id, combinedPdfPath: combinedKey, applicationCount: pairs.length },
+      });
+      for (let k = 0; k < pairs.length; k++) {
+        const p = pairs[k];
+        const key = await saveFile('permits', '.pdf', Buffer.from(pdfs[k]));
+        await prisma.permitApplication.create({
+          data: {
+            townshipId: p.twp.id, employeeId: p.emp.id, batchId: batch.id,
+            generatedPdfPath: key, missingRequirements: '[]', ...p.preset,
+          },
+        });
+      }
+    }
   }
 
   console.log('Seed complete.');

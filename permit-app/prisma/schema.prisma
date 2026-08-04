@@ -161,9 +161,11 @@ model PermitApplication {
   generatedPdfPath   String?
   // JSON array of requirement keys this employee is missing for this township
   missingRequirements String? @default("[]")
+  permitNumber       String?
   submittedAt        DateTime?
   approvedAt         DateTime?
   expiresAt          DateTime?
+  deniedReason       String?
   notes              String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

@@ -99,7 +99,7 @@ export default async function Dashboard() {
               <h3>Upcoming expirations</h3>
               <div className="sub">Permits expiring in the next 45 days</div>
             </div>
-            <LinkBtn href="/permits" variant="ghost sm">Permits →</LinkBtn>
+            <LinkBtn href="/renewals" variant="ghost sm">Renewals →</LinkBtn>
           </div>
           <div className="table-wrap">
             {expiring.length === 0 ? (
@@ -110,7 +110,7 @@ export default async function Dashboard() {
                 <tbody>
                   {expiring.map((a) => (
                     <tr key={a.id}>
-                      <td className="cell-strong">{a.township.name}</td>
+                      <td><Link className="rowlink" href={`/permits/${a.id}`}>{a.township.name}</Link></td>
                       <td>{a.employee.firstName} {a.employee.lastName}</td>
                       <td>{a.expiresAt?.toLocaleDateString()}</td>
                     </tr>

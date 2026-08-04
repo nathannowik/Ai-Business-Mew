@@ -14,6 +14,7 @@ const NAV: { label: string; items: { href: string; icon: string; name: string }[
     items: [
       { href: '/generate', icon: '✦', name: 'Generate Permits' },
       { href: '/permits', icon: '▤', name: 'Permits' },
+      { href: '/renewals', icon: '↻', name: 'Renewals' },
       { href: '/batches', icon: '⎙', name: 'Print Batches' },
     ],
   },
