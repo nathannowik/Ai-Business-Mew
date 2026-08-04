@@ -1,0 +1,221 @@
+// Soliciting-permit management data model.
+// SQLite is used so the whole app runs from a single file with zero external services.
+// Note: SQLite (via Prisma) has no native enum/array/JSON types, so statuses are plain
+// strings (validated in app code) and structured extras are stored as JSON strings.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// The soliciting company itself. A single row supplies the shared fields
+/// (company name, address, insurance, bond, contact) used to fill every permit.
+model Company {
+  id                  String   @id @default(cuid())
+  name                String
+  legalName           String?
+  address             String?
+  city                String?
+  state               String?
+  zip                 String?
+  phone               String?
+  email               String?
+  website             String?
+  ein                 String?
+  contactName         String?
+  contactTitle        String?
+  insuranceCarrier    String?
+  insurancePolicyNum  String?
+  bondNumber          String?
+  natureOfBusiness    String?  @default("Door-to-door sales / solicitation")
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+/// A geographic team, e.g. "Area 3". Employees belong to one; townships are
+/// designated to one. Generating permits works over an (area group x township) pair.
+model AreaGroup {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  color       String?      @default("#2563eb")
+  createdAt   DateTime     @default(now())
+  employees   Employee[]
+  townships   Township[]
+  batches     PermitBatch[]
+}
+
+/// A person who will be knocking. Carries the personal data that flows into permit
+/// forms plus the per-person compliance items (2x2 photo, background check, fingerprints).
+model Employee {
+  id                   String    @id @default(cuid())
+  firstName            String
+  lastName             String
+  email                String?
+  phone                String?
+  address              String?
+  city                 String?
+  state                String?
+  zip                  String?
+  dob                  DateTime?
+  driverLicense        String?
+  driverLicenseState   String?
+  ssnLast4             String?
+  vehicleMakeModel     String?
+  vehiclePlate         String?
+  vehicleColor         String?
+  // Per-person compliance. status values: "missing" | "pending" | "complete"
+  photoPath            String?
+  photoStatus          String    @default("missing")
+  backgroundCheckStatus String   @default("missing")
+  backgroundCheckDate  DateTime?
+  fingerprintStatus    String    @default("missing")
+  fingerprintDate      DateTime?
+  active               Boolean   @default(true)
+  notes                String?
+  areaGroupId          String?
+  areaGroup            AreaGroup? @relation(fields: [areaGroupId], references: [id], onDelete: SetNull)
+  applications         PermitApplication[]
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+/// A township we solicit in. Holds its unique requirements, clerk contact info, and
+/// the official permit PDF (with a field->data mapping) used to auto-fill applications.
+model Township {
+  id               String   @id @default(cuid())
+  name             String
+  state            String?
+  county           String?
+  areaGroupId      String?
+  areaGroup        AreaGroup? @relation(fields: [areaGroupId], references: [id], onDelete: SetNull)
+
+  // Clerk / office contact
+  clerkOfficeName  String?
+  clerkName        String?
+  clerkEmail       String?
+  clerkPhone       String?
+  officeAddress    String?
+  officeCity       String?
+  officeZip        String?
+  website          String?
+
+  // Logistics
+  permitFee        Float?
+  processingDays   Int?
+  permitDurationDays Int?
+  renewalNotes     String?
+
+  // Requirement flags (the common, trackable ones)
+  reqFee           Boolean  @default(false)
+  reqFingerprints  Boolean  @default(false)
+  reqBackgroundCheck Boolean @default(false)
+  reqPhoto2x2      Boolean  @default(false)
+  reqInsurance     Boolean  @default(false)
+  reqBond          Boolean  @default(false)
+  reqDriverLicense Boolean  @default(false)
+  reqVehicleInfo   Boolean  @default(false)
+  reqInPerson      Boolean  @default(false)
+  reqNotarized     Boolean  @default(false)
+  // Arbitrary extras as a JSON array of strings, e.g. ["Two references","$5 badge fee"]
+  extraRequirements String? @default("[]")
+  requirementsNotes String?
+
+  // Official permit PDF template + auto-fill mapping
+  permitPdfPath    String?
+  // JSON array of AcroForm field names detected in the uploaded PDF
+  permitPdfFields  String? @default("[]")
+  // JSON object mapping pdfFieldName -> token (e.g. "employee.fullName", "company.name")
+  fieldMappings    String? @default("{}")
+
+  // status: "active" | "needs_info" | "inactive"
+  status           String  @default("active")
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  applications     PermitApplication[]
+  emailDrafts      EmailDraft[]
+
+  @@unique([name, state, county])
+}
+
+/// One permit for one employee in one township. Created when permits are generated;
+/// tracks the filled PDF and lifecycle from generated -> submitted -> approved/expired.
+model PermitApplication {
+  id                 String   @id @default(cuid())
+  townshipId         String
+  township           Township @relation(fields: [townshipId], references: [id], onDelete: Cascade)
+  employeeId         String
+  employee           Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  batchId            String?
+  batch              PermitBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  // status: "generated" | "submitted" | "approved" | "denied" | "expired"
+  status             String   @default("generated")
+  generatedPdfPath   String?
+  // JSON array of requirement keys this employee is missing for this township
+  missingRequirements String? @default("[]")
+  submittedAt        DateTime?
+  approvedAt         DateTime?
+  expiresAt          DateTime?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+/// A print run: "permits for Area 3 x Township X". Groups applications and points at
+/// the single combined, print-ready PDF you turn in.
+model PermitBatch {
+  id               String   @id @default(cuid())
+  label            String
+  areaGroupId      String?
+  areaGroup        AreaGroup? @relation(fields: [areaGroupId], references: [id], onDelete: SetNull)
+  combinedPdfPath  String?
+  applicationCount Int      @default(0)
+  createdAt        DateTime @default(now())
+  applications     PermitApplication[]
+}
+
+/// A request to research/onboard a NEW township. Powers the "submit request" dashboard.
+model TownshipRequest {
+  id                 String   @id @default(cuid())
+  townshipName       String
+  state              String?
+  county             String?
+  areaGroupId        String?
+  requestedBy        String?
+  // priority: "low" | "normal" | "high"
+  priority           String   @default("normal")
+  // status: "new" | "researching" | "info_needed" | "ready" | "added" | "declined"
+  status             String   @default("new")
+  knownRequirements  String?
+  clerkContact       String?
+  notes              String?
+  resultingTownshipId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+/// A drafted email to a clerk's office (e.g. requesting missing info). Prepared for
+/// review, never auto-sent. Copyable / openable in the user's own mail client.
+model EmailDraft {
+  id          String   @id @default(cuid())
+  townshipId  String?
+  township    Township? @relation(fields: [townshipId], references: [id], onDelete: SetNull)
+  to          String?
+  cc          String?
+  subject     String
+  body        String
+  // purpose: "info_request" | "follow_up" | "submission" | "other"
+  purpose     String   @default("info_request")
+  // status: "draft" | "sent"
+  status      String   @default("draft")
+  createdAt   DateTime @default(now())
+  sentAt      DateTime?
+}
