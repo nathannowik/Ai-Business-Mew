@@ -2,9 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
+import { requireManager } from '@/lib/session';
 import { str } from '@/lib/form';
 
 export async function saveCompany(formData: FormData) {
+  await requireManager();
   const id = str(formData, 'id');
   const data = {
     name: str(formData, 'name') ?? 'My Company',

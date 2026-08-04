@@ -1,12 +1,29 @@
 import { PrismaClient } from '@prisma/client';
 import { generatePacket, mergePdfs } from '../src/lib/pdf';
 import { saveFile } from '../src/lib/storage';
+import { hashPassword } from '../src/lib/password';
 
 const prisma = new PrismaClient();
 const daysAgo = (n: number) => new Date(Date.now() - n * 86400000);
 const daysAhead = (n: number) => new Date(Date.now() + n * 86400000);
 
 async function main() {
+  // ---- Users (a default admin plus sample teammates) ----
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@permitpilot.local').toLowerCase();
+  const adminPassword = process.env.APP_PASSWORD || 'permitpilot';
+  if ((await prisma.user.count()) === 0) {
+    await prisma.user.create({
+      data: { email: adminEmail, name: 'Admin', role: 'admin', passwordHash: await hashPassword(adminPassword) },
+    });
+    await prisma.user.create({
+      data: { email: 'manager@permitpilot.local', name: 'Jordan Manager', role: 'manager', passwordHash: await hashPassword('permitpilot') },
+    });
+    await prisma.user.create({
+      data: { email: 'member@permitpilot.local', name: 'Casey Member', role: 'member', passwordHash: await hashPassword('permitpilot') },
+    });
+    console.log(`Seeded admin login: ${adminEmail} / ${adminPassword}`);
+  }
+
   // ---- Company profile (shared fields for every permit) ----
   const companyCount = await prisma.company.count();
   if (companyCount === 0) {

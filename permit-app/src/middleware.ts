@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { COOKIE_NAME, isValidToken } from '@/lib/auth';
+import { COOKIE_NAME, readSession } from '@/lib/auth';
 
-// Protect the whole app behind the session cookie. Everything except the login page and
-// Next's own assets requires a valid session — including /files (permit PDFs contain PII).
+// Gate the whole app behind a valid session cookie. Everything except the login page and
+// Next's own assets requires a signed session — including /files (PDFs contain PII).
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -10,8 +10,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (await isValidToken(token)) return NextResponse.next();
+  const userId = await readSession(req.cookies.get(COOKIE_NAME)?.value);
+  if (userId) return NextResponse.next();
 
   const url = req.nextUrl.clone();
   url.pathname = '/login';
@@ -20,6 +20,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Run on everything except static asset files (which have a dot in the last segment).
   matcher: ['/((?!_next/static|_next/image|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|css|js)$).*)'],
 };

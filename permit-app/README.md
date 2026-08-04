@@ -65,7 +65,8 @@ npm run setup      # creates the SQLite DB and loads realistic sample data
 npm run dev        # http://localhost:3000
 ```
 
-Sign in with the password in `.env` (`APP_PASSWORD`, default `permitpilot`).
+Sign in with the seeded admin account (printed when you run `npm run setup`):
+`admin@permitpilot.local` / `permitpilot`.
 
 For a production build:
 
@@ -74,27 +75,41 @@ npm run build
 npm start
 ```
 
-## Sign-in & security
+## Accounts, roles & security
 
-The whole app sits behind a shared password (single-tenant MVP — no per-user accounts
-yet). Two environment variables control it:
+Each person signs in with their own **email + password** (passwords are scrypt-hashed).
+Manage accounts under **Users** (admin only). Three roles:
 
-| Variable       | Purpose                                                        | Default        |
-| -------------- | ------------------------------------------------------------- | -------------- |
-| `APP_PASSWORD` | The password you type to sign in.                             | `permitpilot`  |
+| Role      | Can do                                                        |
+| --------- | ------------------------------------------------------------ |
+| `admin`   | Everything, including managing users and company settings.   |
+| `manager` | Everything except user management.                           |
+| `member`  | Day-to-day permit operations.                                |
+
+Environment variables:
+
+| Variable       | Purpose                                                                        | Default                   |
+| -------------- | ------------------------------------------------------------------------------ | ------------------------- |
 | `AUTH_SECRET`  | Signs the session cookie so it can't be forged. Set a long random string in production. | derived (dev only) |
+| `ADMIN_EMAIL`  | Email for the initial admin account (first seed only).                         | `admin@permitpilot.local` |
+| `APP_PASSWORD` | Password for the initial admin account (first seed only).                      | `permitpilot`             |
 
 Edge middleware protects every route — including `/files/*`, which serves permit PDFs that
-contain personal data. **Change both values before exposing the app publicly.**
+contain personal data. Sessions are signed per-user with `AUTH_SECRET`. **Set a strong
+`AUTH_SECRET` and change the seeded admin password before exposing the app publicly.**
 
 ## Deploy with Docker
 
 ```bash
 cd permit-app
 docker compose up --build          # http://localhost:3000
-# one-time: load sample data into the fresh volume DB
+# one-time: seed the fresh volume DB — this creates the admin login (and sample data)
 docker compose exec permitpilot npm run db:seed
 ```
+
+The seed is what creates the initial admin account, so run it at least once or you'll have
+no way to sign in. Set `ADMIN_EMAIL` / `APP_PASSWORD` before seeding to control that login;
+you can delete the sample townships/employees afterward.
 
 The SQLite database persists on the `permitpilot-db` volume and uploaded/generated files
 on `permitpilot-storage`, so both survive restarts. Set real `APP_PASSWORD` and

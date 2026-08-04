@@ -15,10 +15,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <form action={login} style={{ padding: '12px 28px 28px' }}>
           <input type="hidden" name="from" value={from ?? '/'} />
           <div className="field">
-            <label>Password</label>
-            <input className="input" type="password" name="password" autoFocus required placeholder="Enter password" />
+            <label>Email</label>
+            <input className="input" type="email" name="email" autoFocus required placeholder="you@company.com" />
           </div>
-          {error && <div className="notice warn" style={{ marginBottom: 12 }}><span>⚠</span><div>Incorrect password. Please try again.</div></div>}
+          <div className="field">
+            <label>Password</label>
+            <input className="input" type="password" name="password" required placeholder="Enter password" />
+          </div>
+          {error && <div className="notice warn" style={{ marginBottom: 12 }}><span>⚠</span><div>Incorrect email or password. Please try again.</div></div>}
           <button className="btn primary lg" type="submit" style={{ width: '100%' }}>Sign in</button>
         </form>
       </div>

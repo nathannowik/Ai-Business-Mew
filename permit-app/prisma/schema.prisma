@@ -12,6 +12,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// A person who can sign in. role: "admin" | "manager" | "member".
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         String    @default("member")
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
 /// The soliciting company itself. A single row supplies the shared fields
 /// (company name, address, insurance, bond, contact) used to fill every permit.
 model Company {
