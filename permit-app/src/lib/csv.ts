@@ -63,6 +63,15 @@ export function field(obj: Record<string, string>, aliases: string[]): string {
   return '';
 }
 
+/** Serialize rows to CSV text, quoting/escaping cells as needed. */
+export function serializeCsv(rows: (string | number | null | undefined)[][]): string {
+  const esc = (v: string | number | null | undefined) => {
+    const s = v == null ? '' : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return rows.map((r) => r.map(esc).join(',')).join('\r\n');
+}
+
 const TRUTHY = new Set(['yes', 'y', 'true', 't', '1', 'x', 'required', 'req']);
 export function truthy(v: string): boolean {
   return TRUTHY.has(v.trim().toLowerCase());

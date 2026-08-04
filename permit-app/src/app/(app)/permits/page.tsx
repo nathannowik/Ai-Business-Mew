@@ -50,7 +50,12 @@ export default async function PermitsPage({ searchParams }: { searchParams: Prom
       <PageHead
         title="Permits"
         subtitle="Every permit and exactly where it stands — filled out, submitted, approved, and how long it’s valid."
-        action={<Link className="btn primary" href="/generate">✦ Generate Permits</Link>}
+        action={
+          <>
+            <a className="btn" href={`/permits/export${filter !== 'all' ? `?status=${filter}` : ''}`}>⬇ Export CSV</a>
+            <Link className="btn primary" href="/generate">✦ Generate Permits</Link>
+          </>
+        }
       />
 
       <div className="wrap-gap" style={{ marginBottom: 16 }}>

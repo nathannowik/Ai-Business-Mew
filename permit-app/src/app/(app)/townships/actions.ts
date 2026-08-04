@@ -8,6 +8,7 @@ import { detectPdfFields } from '@/lib/pdf';
 import { guessToken, REQUIREMENTS } from '@/lib/domain';
 import { str, bool, num, int } from '@/lib/form';
 import { parseCsv, field, truthy, TOWNSHIP_COLUMNS } from '@/lib/csv';
+import { logActivity } from '@/lib/activity';
 
 function reqFlags(fd: FormData): Record<string, boolean> {
   const out: Record<string, boolean> = {};
@@ -126,6 +127,7 @@ export async function importTownshipsCsv(formData: FormData) {
     imported++;
   }
 
+  await logActivity({ action: 'township.imported', entity: 'township', detail: `${imported} imported${skipped ? `, ${skipped} skipped` : ''}` });
   revalidatePath('/townships');
   revalidatePath('/');
   redirect(`/townships?imported=${imported}&skipped=${skipped}`);

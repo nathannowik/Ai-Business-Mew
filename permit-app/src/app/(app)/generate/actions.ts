@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db';
 import { readFile, saveFile } from '@/lib/storage';
 import { fillTownshipPdf, generatePacket, mergePdfs } from '@/lib/pdf';
 import { missingRequirementsFor } from '@/lib/domain';
+import { logActivity } from '@/lib/activity';
 import { str, all } from '@/lib/form';
 
 /**
@@ -100,6 +101,8 @@ export async function generatePermits(formData: FormData) {
       },
     },
   });
+
+  await logActivity({ action: 'permits.generated', entity: 'batch', entityId: batch.id, detail: `${area.name} — ${appRows.length} permits across ${townships.length} township${townships.length === 1 ? '' : 's'}` });
 
   revalidatePath('/batches');
   revalidatePath('/permits');

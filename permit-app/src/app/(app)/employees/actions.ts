@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db';
 import { saveFile, deleteFile } from '@/lib/storage';
 import { str, bool, date } from '@/lib/form';
 import { parseCsv, field, EMPLOYEE_COLUMNS } from '@/lib/csv';
+import { logActivity } from '@/lib/activity';
 
 function statusFromDate(status: string): string {
   return ['missing', 'pending', 'complete'].includes(status) ? status : 'missing';
@@ -131,6 +132,7 @@ export async function importEmployeesCsv(formData: FormData) {
     imported++;
   }
 
+  await logActivity({ action: 'employee.imported', entity: 'employee', detail: `${imported} imported${skipped ? `, ${skipped} skipped` : ''}` });
   revalidatePath('/employees');
   revalidatePath('/');
   redirect(`/employees?imported=${imported}&skipped=${skipped}`);

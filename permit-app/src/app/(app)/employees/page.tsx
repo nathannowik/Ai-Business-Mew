@@ -26,6 +26,7 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
         subtitle="Your field team. Each person is assigned to an area group and tracked for photo, background check, and fingerprint compliance."
         action={
           <>
+            <a className="btn" href="/employees/export">⬇ Export</a>
             <ImportDrawer
               action={importEmployeesCsv}
               title="Import employees"

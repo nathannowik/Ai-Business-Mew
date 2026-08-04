@@ -26,6 +26,7 @@ export default async function TownshipsPage({ searchParams }: { searchParams: Pr
         subtitle="Every township is different. Track each one's requirements, clerk contact, and official permit PDF so applications fill themselves."
         action={
           <>
+            <a className="btn" href="/townships/export">⬇ Export</a>
             <ImportDrawer
               action={importTownshipsCsv}
               title="Import townships"

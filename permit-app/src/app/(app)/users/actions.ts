@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireAdmin, getCurrentUser } from '@/lib/session';
 import { hashPassword } from '@/lib/password';
+import { logActivity } from '@/lib/activity';
 import { str, bool } from '@/lib/form';
 
 const ROLES = ['admin', 'manager', 'member'];
@@ -21,11 +22,13 @@ export async function saveUser(formData: FormData) {
     const data: Record<string, unknown> = { email, name, role, active: bool(formData, 'active') };
     if (password) data.passwordHash = await hashPassword(password);
     await prisma.user.update({ where: { id }, data });
+    await logActivity({ action: 'user.updated', entity: 'user', entityId: id, detail: `${name} (${role})` });
   } else {
     if (!password) return; // new users need a password
-    await prisma.user.create({
+    const created = await prisma.user.create({
       data: { email, name, role, active: true, passwordHash: await hashPassword(password) },
     });
+    await logActivity({ action: 'user.created', entity: 'user', entityId: created.id, detail: `${name} (${role})` });
   }
   revalidatePath('/users');
 }
@@ -41,6 +44,7 @@ export async function deleteUser(formData: FormData) {
     if (adminCount <= 1) return;
   }
   await prisma.user.delete({ where: { id } });
+  await logActivity({ action: 'user.deleted', entity: 'user', detail: target?.name ?? id });
   revalidatePath('/users');
 }
 

@@ -10,7 +10,10 @@ type NavItem = { href: string; icon: string; name: string; adminOnly?: boolean }
 const NAV: { label: string; items: NavItem[] }[] = [
   {
     label: 'Overview',
-    items: [{ href: '/', icon: '▚', name: 'Dashboard' }],
+    items: [
+      { href: '/', icon: '▚', name: 'Dashboard' },
+      { href: '/activity', icon: '🕑', name: 'Activity' },
+    ],
   },
   {
     label: 'Operations',

@@ -12,6 +12,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// An audit-trail entry: who did what, when. Written best-effort by server actions.
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  userName   String
+  action     String   // e.g. "permits.generated", "permit.status", "user.created"
+  entity     String?  // e.g. "permit", "township", "user"
+  entityId   String?
+  detail     String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 /// A person who can sign in. role: "admin" | "manager" | "member".
 model User {
   id           String    @id @default(cuid())

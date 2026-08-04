@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { readFile, saveFile, deleteFile } from '@/lib/storage';
 import { fillTownshipPdf, generatePacket, mergePdfs } from '@/lib/pdf';
+import { logActivity } from '@/lib/activity';
 import { str, date, int } from '@/lib/form';
 
 /** Inline quick status change from the list (dropdown). Fills sensible timestamps. */
@@ -12,7 +13,7 @@ export async function setApplicationStatus(formData: FormData) {
   const id = str(formData, 'id');
   const status = str(formData, 'status');
   if (!id || !status) return;
-  const app = await prisma.permitApplication.findUnique({ where: { id }, include: { township: true } });
+  const app = await prisma.permitApplication.findUnique({ where: { id }, include: { township: true, employee: true } });
   if (!app) return;
   const now = new Date();
   const patch: Record<string, unknown> = { status };
@@ -25,6 +26,7 @@ export async function setApplicationStatus(formData: FormData) {
     }
   }
   await prisma.permitApplication.update({ where: { id }, data: patch });
+  await logActivity({ action: 'permit.status', entity: 'permit', entityId: id, detail: `${app.employee?.firstName ?? ''} ${app.employee?.lastName ?? ''} @ ${app.township.name} → ${status}` });
   revalidatePath('/permits');
   revalidatePath('/renewals');
   revalidatePath('/');
@@ -63,9 +65,10 @@ export async function updateApplication(formData: FormData) {
 export async function deleteApplication(formData: FormData) {
   const id = str(formData, 'id');
   if (!id) return;
-  const app = await prisma.permitApplication.findUnique({ where: { id } });
+  const app = await prisma.permitApplication.findUnique({ where: { id }, include: { township: true, employee: true } });
   if (app?.generatedPdfPath) await deleteFile(app.generatedPdfPath);
   await prisma.permitApplication.delete({ where: { id } });
+  if (app) await logActivity({ action: 'permit.deleted', entity: 'permit', detail: `${app.employee.firstName} ${app.employee.lastName} @ ${app.township.name}` });
   revalidatePath('/permits');
   revalidatePath('/renewals');
   revalidatePath('/');
@@ -123,6 +126,7 @@ export async function regenerateApplication(formData: FormData) {
     },
   });
 
+  await logActivity({ action: 'permit.renewed', entity: 'permit', entityId: batch.id, detail: `${employee.firstName} ${employee.lastName} @ ${township.name}` });
   revalidatePath('/permits');
   revalidatePath('/renewals');
   revalidatePath('/batches');
