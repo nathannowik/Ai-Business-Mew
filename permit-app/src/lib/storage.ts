@@ -2,9 +2,12 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
-// All uploaded and generated files live under /storage (git-ignored). We store a
-// relative key (e.g. "townships/ab12.pdf") in the DB and resolve it here.
-const ROOT = path.join(process.cwd(), 'storage');
+// All uploaded and generated files live under the storage directory (git-ignored). We
+// store a relative key (e.g. "townships/ab12.pdf") in the DB and resolve it here.
+// STORAGE_DIR lets a host point this at a persistent disk (e.g. /data/storage).
+const ROOT = process.env.STORAGE_DIR
+  ? path.resolve(process.env.STORAGE_DIR)
+  : path.join(process.cwd(), 'storage');
 
 export async function ensureDir(sub: string) {
   await fs.mkdir(path.join(ROOT, sub), { recursive: true });

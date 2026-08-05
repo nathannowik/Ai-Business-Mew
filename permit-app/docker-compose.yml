@@ -8,11 +8,10 @@ services:
       APP_PASSWORD: "permitpilot"
       AUTH_SECRET: "change-me-to-a-long-random-string"
       DATABASE_URL: "file:/data/dev.db"
+      STORAGE_DIR: "/data/storage"
     volumes:
-      - permitpilot-db:/data
-      - permitpilot-storage:/app/storage
+      - permitpilot-data:/data
     restart: unless-stopped
 
 volumes:
-  permitpilot-db:
-  permitpilot-storage:
+  permitpilot-data:
