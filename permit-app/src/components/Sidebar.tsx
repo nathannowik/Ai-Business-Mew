@@ -21,6 +21,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
       { href: '/generate', icon: '✦', name: 'Generate Permits' },
       { href: '/permits', icon: '▤', name: 'Permits' },
       { href: '/renewals', icon: '↻', name: 'Renewals' },
+      { href: '/map', icon: '🛰', name: 'Coverage Map' },
       { href: '/batches', icon: '⎙', name: 'Print Batches' },
     ],
   },

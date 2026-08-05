@@ -153,11 +153,19 @@ async function main() {
       reqFee: true, reqBackgroundCheck: true, reqDriverLicense: true,
     },
   ];
+  // Approximate coordinates so the coverage map is populated in the demo.
+  const COORDS: Record<string, { lat: number; lng: number }> = {
+    'Cascade Township': { lat: 42.9169, lng: -85.4989 },
+    'Ada Township': { lat: 42.9606, lng: -85.4939 },
+    'Gaines Township': { lat: 42.8009, lng: -85.5686 },
+    'Georgetown Township': { lat: 42.9075, lng: -85.7942 },
+    'Byron Township': { lat: 42.8102, lng: -85.7217 },
+  };
   for (const t of townships) {
     const { area, ...rest } = t;
     const exists = await prisma.township.findFirst({ where: { name: t.name, state: t.state, county: t.county } });
     if (exists) continue;
-    await prisma.township.create({ data: { ...rest, areaGroupId: areas[area] } });
+    await prisma.township.create({ data: { ...rest, areaGroupId: areas[area], ...(COORDS[t.name] ?? {}) } });
   }
 
   // ---- New township requests ----

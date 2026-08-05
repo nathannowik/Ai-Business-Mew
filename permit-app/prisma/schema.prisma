@@ -155,6 +155,10 @@ model Township {
   permitDurationDays Int?
   renewalNotes     String?
 
+  // Map location (auto-geocoded when possible; editable)
+  lat              Float?
+  lng              Float?
+
   // Requirement flags (the common, trackable ones)
   reqFee           Boolean  @default(false)
   reqFingerprints  Boolean  @default(false)

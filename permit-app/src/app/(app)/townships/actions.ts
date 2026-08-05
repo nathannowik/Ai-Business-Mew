@@ -9,6 +9,7 @@ import { guessToken, REQUIREMENTS } from '@/lib/domain';
 import { str, bool, num, int } from '@/lib/form';
 import { parseCsv, field, truthy, TOWNSHIP_COLUMNS } from '@/lib/csv';
 import { logActivity } from '@/lib/activity';
+import { geocode } from '@/lib/geocode';
 
 function reqFlags(fd: FormData): Record<string, boolean> {
   const out: Record<string, boolean> = {};
@@ -43,12 +44,23 @@ export async function saveTownship(formData: FormData) {
     processingDays: int(formData, 'processingDays'),
     permitDurationDays: int(formData, 'permitDurationDays'),
     renewalNotes: str(formData, 'renewalNotes'),
+    lat: num(formData, 'lat'),
+    lng: num(formData, 'lng'),
     extraRequirements: extrasToJson(str(formData, 'extraRequirements')),
     requirementsNotes: str(formData, 'requirementsNotes'),
     status: str(formData, 'status') ?? 'active',
     notes: str(formData, 'notes'),
     ...reqFlags(formData),
   };
+
+  // Auto-geocode for the map when no coordinates were provided (best-effort).
+  if (data.lat == null || data.lng == null) {
+    const geo = await geocode({ name, county: data.county, state: data.state });
+    if (geo) {
+      data.lat = geo.lat;
+      data.lng = geo.lng;
+    }
+  }
 
   let townshipId = id ?? undefined;
   if (id) {
@@ -58,6 +70,7 @@ export async function saveTownship(formData: FormData) {
     townshipId = created.id;
   }
   revalidatePath('/townships');
+  revalidatePath('/map');
   revalidatePath('/');
   return townshipId;
 }

@@ -38,6 +38,13 @@ have to do is print the stack and turn it in.
   approved / denied / expired), with expiration tracking.
 - **Township requests** — a queue to submit new townships you want to knock; research
   them, then convert a ready request into a tracked township.
+- **Add a township with AI** — type a township name and PermitPilot searches the web for
+  its soliciting-permit requirements, clerk contact, fee, and application form, then drafts
+  the township (as “needs info”) for you to verify. If it finds the fillable permit PDF, it
+  attaches it and maps the fields automatically. Requires an `ANTHROPIC_API_KEY`.
+- **Coverage map** — every township on a satellite map, with markers colored by permit
+  status: **green = approved**, **yellow = pending**, **red = not applied**. Locations are
+  geocoded automatically (or set by hand on the township).
 - **Clerk emails** — generate a ready-to-send email to a clerk's office (request
   requirements, follow up, or transmit applications). You review and send from your own
   inbox — nothing is sent automatically.
@@ -129,6 +136,19 @@ image — just attach a persistent disk for `/data` and `/app/storage`.
 | `npm run build`   | Generate the Prisma client + production build   |
 
 ---
+
+## AI township research & the coverage map
+
+**AI research** is optional and off unless you set `ANTHROPIC_API_KEY`. When enabled, the
+"Add a township with AI" bar on the Townships page uses Claude with web search to gather a
+township's requirements and permit form. Results are **created as drafts to review** — AI
+can be wrong, so verify before filing. Override the model with `RESEARCH_MODEL`
+(default `claude-opus-5`; `claude-sonnet-5` is a cheaper option).
+
+**The map** uses free Esri satellite tiles (no key) and geocodes townships via OpenStreetMap
+Nominatim. Geocoding is best-effort — if your host blocks it, set a township's latitude and
+longitude by hand on its page. Marker colors: green = an approved, current permit;
+yellow = permits in progress or expired; red = none applied for yet.
 
 ## How auto-fill works
 

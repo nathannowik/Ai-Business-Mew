@@ -11,6 +11,7 @@ type T = Record<string, unknown> & {
   officeAddress: string | null; officeCity: string | null; officeZip: string | null; website: string | null;
   permitFee: number | null; processingDays: number | null; permitDurationDays: number | null;
   renewalNotes: string | null; extraRequirements: string | null; requirementsNotes: string | null;
+  lat: number | null; lng: number | null;
   status: string; notes: string | null;
 };
 
@@ -90,6 +91,10 @@ export function TownshipForm({ areas, township, triggerLabel = '+ Add township',
               <div className="field"><label>Permit valid for (days)</label><input className="input" name="permitDurationDays" type="number" defaultValue={t?.permitDurationDays ?? ''} /></div>
             </div>
             <div className="field"><label>Renewal notes</label><input className="input" name="renewalNotes" defaultValue={t?.renewalNotes ?? ''} /></div>
+            <div className="form-grid">
+              <div className="field"><label>Map latitude</label><input className="input" name="lat" type="number" step="any" defaultValue={t?.lat ?? ''} placeholder="auto-filled" /></div>
+              <div className="field"><label>Map longitude</label><input className="input" name="lng" type="number" step="any" defaultValue={t?.lng ?? ''} /><span className="hint">Leave blank to auto-locate from name + county/state.</span></div>
+            </div>
             <div className="field"><label>General notes</label><textarea className="textarea" name="notes" defaultValue={t?.notes ?? ''} /></div>
           </fieldset>
 

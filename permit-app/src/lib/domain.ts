@@ -277,6 +277,24 @@ export type ExpiryInfo = {
   label: string | null;
 };
 
+// Map marker status for a township, from its permit applications:
+//   green  = at least one approved, non-expired permit
+//   yellow = has permits in progress (generated/submitted) or all approved ones expired
+//   red    = no permits applied for yet
+export type MapStatus = 'approved' | 'pending' | 'none';
+export const MAP_STATUS_META: Record<MapStatus, { label: string; color: string }> = {
+  approved: { label: 'Approved', color: '#22c55e' },
+  pending: { label: 'Pending', color: '#eab308' },
+  none: { label: 'Not applied', color: '#ef4444' },
+};
+
+export function townshipMapStatus(apps: Pick<PermitApplication, 'status' | 'expiresAt'>[]): MapStatus {
+  if (apps.length === 0) return 'none';
+  // Any approved-and-current permit makes the township green; otherwise it has
+  // in-progress or expired permits, which read as pending (yellow).
+  return apps.some((a) => effectiveStatus(a) === 'approved') ? 'approved' : 'pending';
+}
+
 export function expiryInfo(app: Pick<PermitApplication, 'status' | 'expiresAt'>, soonDays = 30): ExpiryInfo {
   if (!app.expiresAt) return { daysRemaining: null, expired: false, expiringSoon: false, label: null };
   const d = daysUntil(app.expiresAt);

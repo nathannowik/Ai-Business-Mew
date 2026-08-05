@@ -33,6 +33,7 @@ export const ACTIVITY_META: Record<string, { icon: string; label: string; tone: 
   'permit.deleted': { icon: '🗑', label: 'Deleted permit', tone: 'red' },
   'employee.imported': { icon: '⇪', label: 'Imported employees', tone: 'blue' },
   'township.imported': { icon: '⇪', label: 'Imported townships', tone: 'blue' },
+  'township.researched': { icon: '✨', label: 'Researched township', tone: 'green' },
   'township.pdf': { icon: '📄', label: 'Updated township form', tone: 'gray' },
   'user.created': { icon: '＋', label: 'Added user', tone: 'green' },
   'user.updated': { icon: '✎', label: 'Updated user', tone: 'gray' },
