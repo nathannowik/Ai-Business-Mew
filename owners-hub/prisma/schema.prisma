@@ -1,0 +1,142 @@
+// Owners Hub data model.
+// Dates that represent a calendar day (due dates, week starts) are stored as
+// "YYYY-MM-DD" strings in the company timezone (APP_TIMEZONE) so "today" never
+// shifts because of server/UTC offsets.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  passwordHash   String
+  role           String    @default("MEMBER") // ADMIN | MEMBER
+  emailReminders Boolean   @default(true)
+  lastDigestOn   String? // YYYY-MM-DD of the last daily reminder email
+  createdAt      DateTime  @default(now())
+
+  tasks          Task[]          @relation("assignee")
+  completed      Task[]          @relation("completedBy")
+  createdTasks   Task[]          @relation("createdBy")
+  comments       Comment[]
+  attachments    Attachment[]
+  recurringTasks RecurringTask[]
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @default("")
+  meetingDay  Int      @default(3) // 0=Sun … 6=Sat
+  meetingTime String   @default("7:00 PM")
+  location    String   @default("")
+  createdAt   DateTime @default(now())
+
+  weeks          LessonWeek[]
+  tasks          Task[]
+  recurringTasks RecurringTask[]
+}
+
+// One "weekly page" per project per week: the lesson plan, files, and tasks.
+model LessonWeek {
+  id                  String   @id @default(cuid())
+  projectId           String
+  weekStart           String // Monday, YYYY-MM-DD
+  status              String   @default("DRAFT") // DRAFT | READY
+  topic               String   @default("")
+  scripture           String   @default("")
+  mainPoint           String   @default("")
+  outline             String   @default("")
+  discussionQuestions String   @default("")
+  prayerFocus         String   @default("")
+  graphicBrief        String   @default("")
+  groupMeMessage      String   @default("")
+  outreachNotes       String   @default("")
+  notes               String   @default("")
+  updatedAt           DateTime @updatedAt
+  createdAt           DateTime @default(now())
+
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  attachments Attachment[]
+
+  @@unique([projectId, weekStart])
+}
+
+// A weekly repeating to-do. Generates a Task every week on `dayOfWeek`.
+model RecurringTask {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String   @default("")
+  assigneeId  String
+  dayOfWeek   Int // 0=Sun … 6=Sat
+  active      Boolean  @default(true)
+  startsOn    String // first date a task may be generated for
+  createdAt   DateTime @default(now())
+
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee User    @relation(fields: [assigneeId], references: [id])
+  tasks    Task[]
+}
+
+model Task {
+  id            String    @id @default(cuid())
+  title         String
+  description   String    @default("")
+  dueDate       String // YYYY-MM-DD
+  assigneeId    String
+  createdById   String?
+  projectId     String?
+  weekId        String?
+  recurringId   String?
+  completedAt   DateTime?
+  completedById String?
+  createdAt     DateTime  @default(now())
+
+  assignee    User           @relation("assignee", fields: [assigneeId], references: [id])
+  createdBy   User?          @relation("createdBy", fields: [createdById], references: [id])
+  completedBy User?          @relation("completedBy", fields: [completedById], references: [id])
+  project     Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  week        LessonWeek?    @relation(fields: [weekId], references: [id], onDelete: SetNull)
+  recurring   RecurringTask? @relation(fields: [recurringId], references: [id], onDelete: SetNull)
+  comments    Comment[]
+
+  @@unique([recurringId, dueDate])
+  @@index([assigneeId, dueDate])
+  @@index([dueDate])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  weekId     String
+  uploaderId String
+  fileName   String
+  storedName String   @unique
+  mimeType   String
+  size       Int
+  caption    String   @default("")
+  createdAt  DateTime @default(now())
+
+  week     LessonWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  uploader User       @relation(fields: [uploaderId], references: [id])
+}

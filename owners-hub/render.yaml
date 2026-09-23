@@ -1,0 +1,50 @@
+# Render Blueprint for Owners Hub. In Render: New → Blueprint, pick this repo,
+# and set the blueprint path to owners-hub/render.yaml.
+services:
+  - type: web
+    name: owners-hub
+    runtime: node
+    rootDir: owners-hub
+    plan: starter # needs a paid plan for the persistent disk (and so it never sleeps)
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /login
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        value: file:/data/owners-hub.db
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: APP_URL
+        sync: false # e.g. https://owners-hub.onrender.com
+      - key: APP_NAME
+        value: Owners Hub
+      - key: APP_TIMEZONE
+        value: America/Chicago
+      - key: REMINDER_HOUR
+        value: "7"
+      - key: SEED_PASSWORD
+        sync: false
+      - key: SEED_NATHAN_EMAIL
+        sync: false
+      - key: SEED_KYLER_EMAIL
+        sync: false
+      - key: SEED_ISAAC_EMAIL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
